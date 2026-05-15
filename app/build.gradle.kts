@@ -82,6 +82,8 @@ dependencies {
 
     // JSON parsing
     implementation("org.json:json:20231013")
+    implementation("com.fasterxml.jackson.core:jackson-databind:2.15.2")
+    implementation("org.slf4j:slf4j-api:2.0.7")
 
     // Testing
     testImplementation("junit:junit:4.13.2")
