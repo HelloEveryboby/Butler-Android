@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Primary colors -->
+    <color name="primary">#1A7FE6</color>
+    <color name="primary_dark">#0056B3</color>
+    <color name="primary_light">#B3D4FC</color>
+
+    <!-- Secondary colors -->
+    <color name="secondary">#FFCA28</color>
+    <color name="secondary_dark">#FFA000</color>
+
+    <!-- Neutral colors -->
+    <color name="background">#FAFAFA</color>
+    <color name="surface">#FFFFFF</color>
+    <color name="on_primary">#FFFFFF</color>
+    <color name="on_secondary">#000000</color>
+    <color name="on_background">#212121</color>
+    <color name="on_surface">#212121</color>
+
+    <!-- Status colors -->
+    <color name="error">#E53935</color>
+    <color name="success">#4CAF50</color>
+    <color name="warning">#FF9800</color>
+
+    <!-- Chat bubbles -->
+    <color name="user_bubble">#1A7FE6</color>
+    <color name="butler_bubble">#2D2D2D</color>
+</resources>
