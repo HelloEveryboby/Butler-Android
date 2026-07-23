@@ -44,10 +44,10 @@ export class DagEngine {
                 const action = btn.getAttribute('data-action');
                 if (!action) return;
                 switch (action) {
-                    case 'add-node':
+                    case 'run':
                         this.addNode();
                         break;
-                    case 'execute':
+                    case 'pause':
                         this.executeWorkflow();
                         break;
                     case 'clear':
@@ -126,8 +126,8 @@ export class DagEngine {
         const container = document.querySelector('#dag-canvas .dag-nodes') as HTMLElement;
         if (!container) return;
         container.innerHTML = this.nodes.map(n => `
-            <div class="dag-node dag-${n.status}" data-id="${n.id}"
-                 style="left:${n.x}px;top:${n.y}px;${this.selectedNode === n.id ? 'border-color:#007AFF;' : ''}">
+            <div class="dag-node dag-${n.status}${this.selectedNode === n.id ? ' dag-node-selected' : ''}" data-id="${n.id}"
+                 style="left:${n.x}px;top:${n.y}px;">
                 <span class="dag-node-label">${n.label}</span>
                 <span class="dag-node-status"><i class="fas fa-${this.statusIcon(n.status)}"></i></span>
             </div>
@@ -146,7 +146,7 @@ export class DagEngine {
 
     private highlightNode(): void {
         document.querySelectorAll<HTMLElement>('.dag-node').forEach(el => {
-            el.style.borderColor = el.dataset.id === this.selectedNode ? '#007AFF' : '';
+            el.classList.toggle('dag-node-selected', el.dataset.id === this.selectedNode);
         });
     }
 

@@ -72,7 +72,6 @@ export class MediaCenter {
 
         container.innerHTML = `
             <div class="media-section">
-                <h4 class="media-section-title"><i class="fas fa-music"></i> 音频 (${audioItems.length})</h4>
                 <div class="media-list">
                     ${audioItems.map((item, idx) => `
                         <div class="media-item" data-path="${item.path}" data-idx="${idx}">
@@ -84,7 +83,6 @@ export class MediaCenter {
                 </div>
             </div>
             <div class="media-section">
-                <h4 class="media-section-title"><i class="fas fa-image"></i> 图片 (${imageItems.length})</h4>
                 <div class="media-list">
                     ${imageItems.map(item => `
                         <div class="media-item" data-path="${item.path}">

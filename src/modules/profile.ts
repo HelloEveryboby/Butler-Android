@@ -1,6 +1,7 @@
 import type { ButlerAPI } from '../services/api';
 import type { WebSocketService } from '../services/websocket';
 import type { NotificationManager } from '../services/notification';
+import { escapeHtml } from '../utils';
 
 // UserProfile - habit tracking and user profile connected to habit_manager
 export class UserProfile {
@@ -46,7 +47,7 @@ export class UserProfile {
         const entries = Object.entries(habits).filter(([key]) => !['id', 'created_at', 'updated_at'].includes(key));
 
         if (entries.length === 0) {
-            container.innerHTML = '<div class="profile-empty">暂无习惯记录</div>';
+            container.innerHTML = '<div class="empty-state">暂无习惯记录</div>';
             return;
         }
 

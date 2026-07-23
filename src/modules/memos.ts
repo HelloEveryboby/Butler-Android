@@ -1,5 +1,6 @@
 import type { ButlerAPI, MemoItem } from '../services/api';
 import type { NotificationManager } from '../services/notification';
+import { escapeHtml } from '../utils';
 
 // MemosManager - memos overlay with search and CRUD from backend
 export class MemosManager {
@@ -45,7 +46,7 @@ export class MemosManager {
         if (memos && memos.length > 0) {
             this.renderMemos(memos);
         } else {
-            list.innerHTML = '<div class="loading-hint">暂无备忘录</div>';
+            list.innerHTML = '<div class="empty-state">暂无备忘录</div>';
         }
     }
 
@@ -57,7 +58,7 @@ export class MemosManager {
             const tags = m.tags || [];
             return `
                 <div class="memo-item" data-id="${m.id}">
-                    <div class="memo-content">${this.escapeHtml(m.content)}</div>
+                    <div class="memo-content">${escapeHtml(m.content)}</div>
                     <div class="memo-meta">
                         <div class="memo-tags">${tags.map(t => `<span class="memo-tag">#${t}</span>`).join('')}</div>
                         ${time ? `<span class="memo-time">${time}</span>` : ''}
@@ -134,11 +135,5 @@ export class MemosManager {
         } catch {
             return iso;
         }
-    }
-
-    private escapeHtml(text: string): string {
-        const div = document.createElement('div');
-        div.textContent = text;
-        return div.innerHTML;
     }
 }

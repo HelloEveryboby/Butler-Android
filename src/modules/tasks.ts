@@ -1,5 +1,6 @@
 import type { ButlerAPI, TaskItem } from '../services/api';
 import type { NotificationManager } from '../services/notification';
+import { escapeHtml } from '../utils';
 
 // TasksBoard - task management kanban board connected to backend task_manager
 export class TasksBoard {
@@ -56,12 +57,12 @@ export class TasksBoard {
             const container = document.getElementById(`task-col-${status}`);
             if (!container) continue;
             if (items.length === 0) {
-                container.innerHTML = '<div class="task-empty">暂无任务</div>';
+                container.innerHTML = '<div class="empty-state">暂无任务</div>';
                 continue;
             }
             container.innerHTML = items.map(t => `
                 <div class="task-card" data-id="${t.id}">
-                    <div class="task-card-title">${this.escapeHtml(t.title)}</div>
+                    <div class="task-card-title">${escapeHtml(t.title)}</div>
                     <div class="task-card-meta">
                         ${t.priority ? `<span class="task-priority task-priority-${t.priority}">${t.priority}</span>` : ''}
                         ${t.tags?.length ? `<span class="task-tags">${t.tags.map(tag => `#${tag}`).join(' ')}</span>` : ''}
@@ -90,9 +91,4 @@ export class TasksBoard {
         }
     }
 
-    private escapeHtml(text: string): string {
-        const div = document.createElement('div');
-        div.textContent = text;
-        return div.innerHTML;
-    }
 }

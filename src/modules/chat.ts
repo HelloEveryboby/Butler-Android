@@ -1,6 +1,7 @@
 import type { ButlerAPI } from '../services/api';
 import type { NotificationManager } from '../services/notification';
 import type { WebSocketService } from '../services/websocket';
+import { escapeHtml } from '../utils';
 
 // ChatManager - handles chat messaging, quick actions, voice, attachments
 export class ChatManager {
@@ -98,7 +99,7 @@ export class ChatManager {
 
         const msgEl = document.createElement('div');
         msgEl.className = 'chat-message user-message';
-        msgEl.innerHTML = `<div class="message-content">${this.escapeHtml(text)}</div>`;
+        msgEl.innerHTML = `<div class="message-content">${escapeHtml(text)}</div>`;
         container.appendChild(msgEl);
         container.scrollTop = container.scrollHeight;
 
@@ -114,10 +115,7 @@ export class ChatManager {
         if (!container) return;
         const msgEl = document.createElement('div');
         msgEl.className = `chat-message bot-message ${type === 'error' ? 'bot-error' : ''}`;
-        msgEl.innerHTML = `
-            <div class="message-avatar"><i class="fas fa-robot"></i></div>
-            <div class="message-content">${this.escapeHtml(text)}</div>
-        `;
+        msgEl.innerHTML = `<div class="message-content">${escapeHtml(text)}</div>`;
         container.appendChild(msgEl);
         container.scrollTop = container.scrollHeight;
     }
@@ -130,9 +128,4 @@ export class ChatManager {
         }
     }
 
-    private escapeHtml(text: string): string {
-        const div = document.createElement('div');
-        div.textContent = text;
-        return div.innerHTML;
-    }
 }

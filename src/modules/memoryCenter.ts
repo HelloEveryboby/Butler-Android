@@ -1,6 +1,7 @@
 import type { ButlerAPI } from '../services/api';
 import type { WebSocketService } from '../services/websocket';
 import type { NotificationManager } from '../services/notification';
+import { escapeHtml } from '../utils';
 
 // MemoryCenter - memory engine + review engine + dream engine + memos search
 // Aggregates: memory_engine + review_engine + dream_engine + memos
@@ -66,12 +67,12 @@ export class MemoryCenter {
         const container = document.getElementById('memory-search-results');
         if (!container) return;
         if (!results || results.length === 0) {
-            container.innerHTML = '<div class="memory-empty-small">未找到相关记忆</div>';
+            container.innerHTML = '<div class="empty-state">未找到相关记忆</div>';
             return;
         }
         container.innerHTML = results.map(r => `
             <div class="memory-result-item">
-                <div class="memory-result-content">${this.escapeHtml(String(r.content || r.text || ''))}</div>
+                <div class="memory-result-content">${escapeHtml(String(r.content || r.text || ''))}</div>
                 <div class="memory-result-meta">
                     ${r.source ? `<span class="memory-result-source">来源: ${r.source}</span>` : ''}
                     ${r.score ? `<span class="memory-result-score">相似度: ${(r.score as number * 100).toFixed(0)}%</span>` : ''}
@@ -85,13 +86,13 @@ export class MemoryCenter {
         const container = document.getElementById('memory-due-reviews');
         if (!container) return;
         if (!items || items.length === 0) {
-            container.innerHTML = '<div class="memory-empty-small">暂无待复习内容</div>';
+            container.innerHTML = '<div class="empty-state">暂无待复习内容</div>';
             return;
         }
         container.innerHTML = `<div class="memory-due-count">${items.length} 项待复习</div>` +
             items.map(item => `
                 <div class="memory-due-item">
-                    <span class="memory-due-content">${this.escapeHtml(String(item.content || ''))}</span>
+                    <span class="memory-due-content">${escapeHtml(String(item.content || ''))}</span>
                     <span class="memory-due-stage">阶段 ${item.stage || 1}</span>
                 </div>
             `).join('');
@@ -111,11 +112,5 @@ export class MemoryCenter {
             </div>
             ${lastDream ? `<div class="dream-status-item"><span class="dream-label">上次做梦</span><span class="dream-value">${lastDream}</span></div>` : ''}
         `;
-    }
-
-    private escapeHtml(text: string): string {
-        const div = document.createElement('div');
-        div.textContent = text;
-        return div.innerHTML;
     }
 }

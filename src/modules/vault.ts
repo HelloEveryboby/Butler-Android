@@ -1,5 +1,6 @@
 import type { ButlerAPI, VaultItem } from '../services/api';
 import type { NotificationManager } from '../services/notification';
+import { escapeHtml } from '../utils';
 
 // SecretVault - encrypted secret management connected to secret_vault core
 export class SecretVault {
@@ -45,7 +46,7 @@ export class SecretVault {
         if (!list) return;
 
         if (items.length === 0) {
-            list.innerHTML = '<div class="vault-empty"><i class="fas fa-lock"></i><p>暂无存储的密钥</p></div>';
+            list.innerHTML = '<div class="empty-state"><i class="fas fa-lock"></i><p>暂无存储的密钥</p></div>';
             return;
         }
 

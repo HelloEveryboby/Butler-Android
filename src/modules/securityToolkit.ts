@@ -1,6 +1,7 @@
 import type { ButlerAPI } from '../services/api';
 import type { WebSocketService } from '../services/websocket';
 import type { NotificationManager } from '../services/notification';
+import { escapeHtml } from '../utils';
 
 // SecurityToolkit - port scanner + network tools + backup sync
 // Aggregates: skill_sec_radar + hybrid_net + skill_local_sync + config_backup
@@ -93,7 +94,7 @@ export class SecurityToolkit {
         const container = document.getElementById('security-scan-results');
         if (!container) return;
         if (!results || results.length === 0) {
-            container.innerHTML = '<div class="memory-empty-small">未发现开放端口</div>';
+            container.innerHTML = '<div class="empty-state">未发现开放端口</div>';
             return;
         }
         container.innerHTML = results.map(r => `
@@ -117,7 +118,7 @@ export class SecurityToolkit {
 
     private setScanOutput(text: string): void {
         const container = document.getElementById('security-scan-results');
-        if (container) container.innerHTML = `<div class="memory-empty-small">${text}</div>`;
+        if (container) container.innerHTML = `<div class="empty-state">${text}</div>`;
     }
 
     private updateSyncStatus(data: Record<string, unknown>): void {

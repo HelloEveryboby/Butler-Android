@@ -49,7 +49,7 @@ export class TimeMachine {
             { label: '网络流量', value: battery?.network || '--', icon: 'fa-wifi', color: '#AF52DE' },
         ];
         grid.innerHTML = metrics.map(m => `
-            <div class="metric-card glass-surface">
+            <div class="metric-card">
                 <div class="metric-icon" style="color:${m.color};"><i class="fas ${m.icon}"></i></div>
                 <div class="metric-info">
                     <span class="metric-value">${m.value}</span>

@@ -1,6 +1,7 @@
 import type { ButlerAPI, CronJob } from '../services/api';
 import type { WebSocketService } from '../services/websocket';
 import type { NotificationManager } from '../services/notification';
+import { escapeHtml } from '../utils';
 
 // CronScheduler - cron job management connected to cron_scheduler core
 export class CronScheduler {
@@ -48,7 +49,7 @@ export class CronScheduler {
         if (!list) return;
 
         if (jobs.length === 0) {
-            list.innerHTML = '<div class="cron-empty"><i class="fas fa-clock"></i><p>暂无定时任务</p></div>';
+            list.innerHTML = '<div class="empty-state"><i class="fas fa-clock"></i><p>暂无定时任务</p></div>';
             return;
         }
 

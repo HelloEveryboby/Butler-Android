@@ -1,6 +1,7 @@
 import type { ButlerAPI } from '../services/api';
 import type { WebSocketService } from '../services/websocket';
 import type { NotificationManager } from '../services/notification';
+import { escapeHtml } from '../utils';
 
 // ClusterView - distributed node management connected to cluster_manager
 export class ClusterView {
@@ -58,7 +59,7 @@ export class ClusterView {
         if (!container) return;
 
         if (!nodes || nodes.length === 0) {
-            container.innerHTML = '<div class="cluster-empty"><i class="fas fa-server"></i><p>无集群节点</p></div>';
+            container.innerHTML = '<div class="empty-state"><i class="fas fa-server"></i><p>无集群节点</p></div>';
             return;
         }
 

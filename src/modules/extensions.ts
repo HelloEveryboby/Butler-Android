@@ -1,6 +1,7 @@
 import type { ButlerAPI } from '../services/api';
 import type { WebSocketService } from '../services/websocket';
 import type { NotificationManager } from '../services/notification';
+import { escapeHtml } from '../utils';
 
 // Extensions - extension manager + team manager + runner server + sensing
 // Aggregates: extension_manager + team_manager + runner_server + sensing_api + display_protocol
@@ -77,12 +78,12 @@ export class Extensions {
         const container = document.getElementById('ext-team');
         if (!container) return;
         if (!members || members.length === 0) {
-            container.innerHTML = '<div class="memory-empty-small">无团队成员</div>';
+            container.innerHTML = '<div class="empty-state">无团队成员</div>';
             return;
         }
         container.innerHTML = members.map(m => `
             <div class="team-member">
-                <span class="team-name">${this.escapeHtml(String(m.name || m.id || '未知'))}</span>
+                <span class="team-name">${escapeHtml(String(m.name || m.id || '未知'))}</span>
                 <span class="team-role">${m.role || 'agent'}</span>
                 <span class="team-status team-${m.status || 'idle'}">${m.status || 'idle'}</span>
             </div>
@@ -93,30 +94,24 @@ export class Extensions {
         const container = document.getElementById('ext-runners');
         if (!container) return;
         if (!nodes || nodes.length === 0) {
-            container.innerHTML = '<div class="memory-empty-small">无远程 Runner 节点</div>';
+            container.innerHTML = '<div class="empty-state">无远程 Runner 节点</div>';
             return;
         }
         container.innerHTML = nodes.map(n => `
             <div class="runner-node">
-                <span class="runner-name">${this.escapeHtml(String(n.name || n.host || '未知'))}</span>
+                <span class="runner-name">${escapeHtml(String(n.name || n.host || '未知'))}</span>
                 <span class="runner-status runner-${n.status || 'disconnected'}">${n.status || 'disconnected'}</span>
             </div>
         `).join('');
     }
 
     private _renderList(items: Array<Record<string, unknown>>, type: string): string {
-        if (items.length === 0) return '<div class="memory-empty-small">无</div>';
+        if (items.length === 0) return '<div class="empty-state">无</div>';
         return '<div class="ext-list">' + items.map(item => `
             <div class="ext-item">
-                <span class="ext-item-name">${this.escapeHtml(String(item.name || item.id || ''))}</span>
-                <span class="ext-item-desc">${this.escapeHtml(String(item.description || ''))}</span>
+                <span class="ext-item-name">${escapeHtml(String(item.name || item.id || ''))}</span>
+                <span class="ext-item-desc">${escapeHtml(String(item.description || ''))}</span>
             </div>
         `).join('') + '</div>';
-    }
-
-    private escapeHtml(text: string): string {
-        const div = document.createElement('div');
-        div.textContent = text;
-        return div.innerHTML;
     }
 }
