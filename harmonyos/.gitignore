@@ -1,0 +1,33 @@
+# HarmonyOS build output
+/build/
+/entry/build/
+/.idea/
+/.hvigor/
+.cxx/
+.test/
+
+# Dependencies
+/oh_modules/
+/entry/oh_modules/
+/node_modules/
+
+# Signing files
+*.p12
+*.cer
+*.jks
+*.keystore
+*.csr
+
+# Build cache
+*.log
+/.preview/
+/.cxx/
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Web resources (generated from Vite dist, copied by script)
+/entry/src/main/resources/rawfile/assets/
+/entry/src/main/resources/rawfile/index.html
+!/entry/src/main/resources/rawfile/.gitkeep

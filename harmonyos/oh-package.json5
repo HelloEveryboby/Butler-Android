@@ -1,0 +1,9 @@
+{
+  "name": "butler",
+  "version": "1.0.0",
+  "description": "Butler AI - HarmonyOS",
+  "dependencies": {},
+  "devDependencies": {
+    "@ohos/hypium": "1.0.6"
+  }
+}
