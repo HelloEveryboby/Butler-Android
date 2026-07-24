@@ -200,6 +200,7 @@ body {
 .page.active {
     opacity: 1; transform: translateX(0);
     z-index: 10;
+    overflow: visible;
 }
 .page.behind {
     opacity: 1; transform: translateX(-30%);
@@ -345,6 +346,9 @@ body {
    Chat Components
    ============================================ */
 .chat-messages {
+    flex: 1;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
     padding: 12px 16px;
     display: flex; flex-direction: column; gap: 8px;
 }
@@ -479,6 +483,8 @@ body {
     display: flex; gap: 8px;
     overflow-x: auto; padding: 12px 0;
     scrollbar-width: none;
+    mask-image: linear-gradient(to right, #000 88%, transparent 100%);
+    -webkit-mask-image: linear-gradient(to right, #000 88%, transparent 100%);
 }
 .settings-sidebar::-webkit-scrollbar { display: none; }
 .settings-nav-item {
@@ -504,7 +510,11 @@ body {
 .icon-green i { color: var(--green) !important; }
 .icon-purple i { color: var(--purple) !important; }
 
-.settings-content-area { padding: 8px 0 20px; }
+.settings-content-area {
+    padding: 8px 0 20px;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+}
 .settings-tab { display: none; }
 .settings-tab.active { display: block; }
 .settings-tab h3 {
@@ -615,6 +625,8 @@ input:checked + .slider::before { transform: translateX(18px); }
 .task-board {
     display: flex; gap: 10px; padding: 0 20px;
     overflow-x: auto; scrollbar-width: none;
+    mask-image: linear-gradient(to right, #000 88%, transparent 100%);
+    -webkit-mask-image: linear-gradient(to right, #000 88%, transparent 100%);
 }
 .task-board::-webkit-scrollbar { display: none; }
 .task-column { flex: 1; min-width: 140px; }
@@ -1187,7 +1199,7 @@ input:checked + .slider::before { transform: translateX(18px); }
    Dynamic Island
    ============================================ */
 .dynamic-island {
-    position: fixed; top: 10px; left: 50%;
+    position: fixed; top: 58px; left: 50%;
     transform: translateX(-50%);
     z-index: 1000;
     display: flex; align-items: center; gap: 8px;
@@ -1217,7 +1229,7 @@ input:checked + .slider::before { transform: translateX(18px); }
    Notifications Container
    ============================================ */
 .notifier-container {
-    position: fixed; top: 60px; left: 50%;
+    position: fixed; top: 100px; left: 50%;
     transform: translateX(-50%);
     z-index: 500; width: 90%; max-width: 380px;
     display: flex; flex-direction: column; gap: 8px;
@@ -1346,6 +1358,30 @@ input:checked + .slider::before { transform: translateX(18px); }
 .profile-empty, .task-empty, .media-empty-small,
 .memory-empty-small, .loading-hint {
     font-size: 0.82rem; line-height: 1.5;
+}
+
+/* Legacy aliases — form sections (use .form-section for new code) */
+.vault-add-form, .cron-add-form {
+    padding: 12px 20px;
+}
+
+/* Legacy aliases — list sections (use .list-section for new code) */
+.vault-list, .cron-jobs {
+    padding: 0 20px;
+}
+
+/* Legacy aliases — list cards (use .list-card for new code) */
+.vault-item, .cron-item {
+    background: var(--surface);
+    border-radius: 12px;
+    padding: 14px 16px;
+    margin-bottom: 10px;
+    box-shadow: var(--card-shadow);
+}
+
+#panel-skills .panel-body {
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
 }
 
 /* ============================================
