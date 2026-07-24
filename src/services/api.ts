@@ -28,6 +28,64 @@ export class ButlerAPI {
         this.ws.send({ type: 'skill:run', skillId, params });
     }
 
+    // ── Skill Marketplace ────────────────────────────────────────
+    async getMarketplaceSkills(): Promise<MarketplaceSkill[]> {
+        try {
+            const res = await fetch(`${this.baseUrl}/skills/marketplace`);
+            return await res.json();
+        } catch {
+            return [];
+        }
+    }
+
+    async installSkill(url: string): Promise<SkillInstallResult> {
+        try {
+            const res = await fetch(`${this.baseUrl}/skills/install`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ url }),
+            });
+            return await res.json();
+        } catch (e: any) {
+            return { ok: false, error: e.message || 'Network error' };
+        }
+    }
+
+    async installSkillFromFile(path: string): Promise<SkillInstallResult> {
+        try {
+            const res = await fetch(`${this.baseUrl}/skills/install/file`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ path }),
+            });
+            return await res.json();
+        } catch (e: any) {
+            return { ok: false, error: e.message || 'Network error' };
+        }
+    }
+
+    async uninstallSkill(skillId: string): Promise<{ ok: boolean; error?: string }> {
+        try {
+            const res = await fetch(`${this.baseUrl}/skills/${skillId}`, { method: 'DELETE' });
+            return await res.json();
+        } catch (e: any) {
+            return { ok: false, error: e.message || 'Network error' };
+        }
+    }
+
+    async scanSkillsDir(dirPath?: string): Promise<SkillScanResult> {
+        try {
+            const res = await fetch(`${this.baseUrl}/skills/scan`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ path: dirPath || null }),
+            });
+            return await res.json();
+        } catch (e: any) {
+            return { ok: false, error: e.message || 'Network error' };
+        }
+    }
+
     // ── Settings ─────────────────────────────────────────────────
     async getSettings(): Promise<Record<string, unknown>> {
         try {
@@ -289,4 +347,39 @@ export interface WorkflowStep {
     intent: string;
     entities?: Record<string, unknown>;
     depends_on?: string[];
+}
+
+// ── Marketplace types ───────────────────────────────────────────
+
+export interface MarketplaceSkill {
+    id: string;
+    name: string;
+    version: string;
+    author: string;
+    description: string;
+    category: string;
+    icon: string;
+    color: string;
+    tags: string[];
+    download_url: string;
+    size: string;
+    downloads: number;
+    rating: number;
+    installed: boolean;
+    installed_version?: string;
+}
+
+export interface SkillInstallResult {
+    ok: boolean;
+    error?: string;
+    skill?: SkillItem;
+    existing_version?: string;
+}
+
+export interface SkillScanResult {
+    ok: boolean;
+    installed?: string[];
+    failed?: Array<{ file: string; error: string }>;
+    error?: string;
+    scanned_dir?: string;
 }

@@ -21,6 +21,7 @@ import { MemoryCenter } from './modules/memoryCenter';
 import { NotificationCenter } from './modules/notificationCenter';
 import { SecurityToolkit } from './modules/securityToolkit';
 import { Extensions } from './modules/extensions';
+import { MarketplaceManager } from './modules/marketplace';
 import { DynamicIslandController } from './modules/dynamicIsland';
 import { WakeManagerModule } from './modules/wakeManager';
 import { WebSocketService } from './services/websocket';
@@ -435,6 +436,9 @@ document.addEventListener('DOMContentLoaded', () => {
     const security   = new SecurityToolkit(api, ws, notify);
     const extensions = new Extensions(api, ws, notify);
 
+    // Marketplace
+    const marketplace = new MarketplaceManager(api, notify);
+
     // Dynamic Island + Wake
     const island     = new DynamicIslandController(api, ws, notify);
     const wakeManager = new WakeManagerModule(api, ws, notify, island);
@@ -462,8 +466,9 @@ document.addEventListener('DOMContentLoaded', () => {
     notifyCenter.init();
     security.init();
     extensions.init();
+    marketplace.init();
     island.init();
     wakeManager.init();
 
-    console.log('[Butler] All 22 modules initialized with unified Apple-style navigation.');
+    console.log('[Butler] All 23 modules initialized with unified Apple-style navigation.');
 });

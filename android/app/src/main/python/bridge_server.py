@@ -297,6 +297,269 @@ def handle_get_auth_token(handler):
     _json_response(handler, {"token": _BRIDGE_AUTH_TOKEN})
 
 
+# ── Skill Manager Import ──────────────────────────────────────────
+
+_skill_manager = None
+
+def _get_skill_manager():
+    """Lazy-import and return the SkillManager singleton."""
+    global _skill_manager
+    if _skill_manager is None:
+        try:
+            from package.core_utils.skill_manager import get_skill_manager
+            _skill_manager = get_skill_manager()
+        except Exception as e:
+            logger.warning(f"SkillManager not available: {e}")
+            _skill_manager = None
+    return _skill_manager
+
+
+# ── Marketplace API Handlers ──────────────────────────────────────
+
+def handle_get_marketplace(handler):
+    """GET /api/skills/marketplace — 获取技能市场列表"""
+    sm = _get_skill_manager()
+    if sm is None:
+        _json_response(handler, [])
+        return
+    _json_response(handler, sm.get_marketplace_skills())
+
+
+def handle_install_skill(handler):
+    """POST /api/skills/install — 从 URL 安装技能"""
+    body = _read_body(handler)
+    url = body.get("url", "")
+    if not url:
+        _json_response(handler, {"ok": False, "error": "url is required"}, 400)
+        return
+    sm = _get_skill_manager()
+    if sm is None:
+        _json_response(handler, {"ok": False, "error": "SkillManager not available"}, 500)
+        return
+    result = sm.install_from_url(url)
+    _json_response(handler, result, 200 if result.get("ok") else 400)
+
+
+def handle_install_skill_file(handler):
+    """POST /api/skills/install/file — 从本地文件安装技能"""
+    body = _read_body(handler)
+    file_path = body.get("path", "")
+    if not file_path:
+        _json_response(handler, {"ok": False, "error": "path is required"}, 400)
+        return
+    sm = _get_skill_manager()
+    if sm is None:
+        _json_response(handler, {"ok": False, "error": "SkillManager not available"}, 500)
+        return
+    result = sm.install_from_file(file_path)
+    _json_response(handler, result, 200 if result.get("ok") else 400)
+
+
+def handle_delete_skill(handler, skill_id):
+    """DELETE /api/skills/<id> — 卸载技能"""
+    sm = _get_skill_manager()
+    if sm is None:
+        _json_response(handler, {"ok": False, "error": "SkillManager not available"}, 500)
+        return
+    result = sm.uninstall_skill(skill_id)
+    _json_response(handler, result, 200 if result.get("ok") else 400)
+
+
+def handle_scan_skills(handler):
+    """POST /api/skills/scan — 扫描自定义目录"""
+    body = _read_body(handler)
+    dir_path = body.get("path", None)
+    sm = _get_skill_manager()
+    if sm is None:
+        _json_response(handler, {"ok": False, "error": "SkillManager not available"}, 500)
+        return
+    result = sm.scan_custom_dir(dir_path)
+    _json_response(handler, result)
+
+
+# ── Skills CLI (inline terminal command) ───────────────────────────
+
+def handle_skills_cli(args: str) -> str:
+    """处理 skills 终端命令, 返回格式化输出字符串。
+    
+    支持: skills add <url|source/name|id> | skills remove <id>
+          skills list | skills search <query> | skills market | skills help
+    """
+    sm = _get_skill_manager()
+    if sm is None:
+        return "❌ SkillManager 不可用"
+
+    if not args or args == "help":
+        return _skills_cli_help()
+
+    parts = args.split()
+    sub = parts[0].lower()
+    rest = " ".join(parts[1:])
+
+    if sub in ("add", "install"):
+        return _skills_cli_add(sm, rest)
+    elif sub in ("remove", "rm", "uninstall"):
+        return _skills_cli_remove(sm, rest)
+    elif sub in ("list", "ls"):
+        return _skills_cli_list(sm)
+    elif sub in ("search", "find"):
+        return _skills_cli_search(sm, rest)
+    elif sub in ("market", "store"):
+        return _skills_cli_market(sm)
+    elif sub in ("help", "--help", "-h"):
+        return _skills_cli_help()
+    else:
+        return f"未知子命令: {sub}\n输入 skills help 查看可用命令"
+
+
+def _skills_cli_help() -> str:
+    return "\n".join([
+        "╔══════════════════════════════════════════════╗",
+        "║       Butler Skills CLI — 技能管理命令      ║",
+        "╠══════════════════════════════════════════════╣",
+        "║  skills add <url>                           ║",
+        "║    从 URL 直接下载安装技能包                ║",
+        "║  skills add <source>/<name>                 ║",
+        "║    从市场安装技能 (如: skills add butler/   ║",
+        "║    audio_denoiser)                          ║",
+        "║  skills add <id>                            ║",
+        "║    按 ID 从市场搜索安装                     ║",
+        "║  skills remove <id>                         ║",
+        "║    卸载已安装的技能                         ║",
+        "║  skills list                                ║",
+        "║    列出所有已安装的技能                     ║",
+        "║  skills search <query>                      ║",
+        "║    搜索技能市场                             ║",
+        "║  skills market                              ║",
+        "║    浏览技能市场全部技能                     ║",
+        "║  skills help                                ║",
+        "║    显示此帮助信息                           ║",
+        "╚══════════════════════════════════════════════╝",
+    ])
+
+
+def _skills_cli_add(sm, target: str) -> str:
+    if not target:
+        return "用法: skills add <url | source/name | id>\n示例: skills add butler/audio_denoiser\n示例: skills add https://example.com/skill.bsk"
+
+    # Direct URL
+    if target.startswith("http://") or target.startswith("https://"):
+        result = sm.install_from_url(target)
+        if result.get("ok"):
+            skill = result.get("skill", {})
+            return f"✅ 安装成功!\n   技能: {skill.get('name', '')} ({skill.get('id', '')})"
+        return f"❌ 安装失败: {result.get('error', '未知错误')}"
+
+    # Search marketplace
+    marketplace = sm.get_marketplace_skills()
+    match = None
+
+    if "/" in target:
+        source, name = target.split("/", 1)
+        source_lower = source.lower()
+        name_lower = name.lower()
+        for s in marketplace:
+            author_lower = s.get("author", "").lower().replace(" ", "").replace("team", "")
+            sid_lower = s.get("id", "").lower()
+            sname_lower = s.get("name", "").lower()
+            if (author_lower.find(source_lower) >= 0 or sid_lower.find(source_lower) >= 0) \
+               and (sid_lower.find(name_lower) >= 0 or sname_lower.find(name_lower) >= 0):
+                match = s
+                break
+    else:
+        target_lower = target.lower()
+        for s in marketplace:
+            if s.get("id", "").lower() == target_lower:
+                match = s
+                break
+        if not match:
+            for s in marketplace:
+                sid = s.get("id", "").lower()
+                sname = s.get("name", "").lower()
+                if target_lower in sid or target_lower in sname:
+                    match = s
+                    break
+
+    if not match:
+        return f'❌ 未找到匹配的技能: "{target}"\n💡 输入 skills market 浏览可用技能'
+
+    if match.get("installed"):
+        return f'⚠️ 技能 "{match["name"]}" ({match["id"]}) 已安装 (v{match.get("installed_version", "")})'
+
+    result = sm.install_from_url(match["download_url"])
+    if result.get("ok"):
+        return f'✅ "{match["name"]}" 安装成功!'
+    return f'❌ 安装失败: {result.get("error", "未知错误")}'
+
+
+def _skills_cli_remove(sm, skill_id: str) -> str:
+    if not skill_id:
+        return "用法: skills remove <id>\n示例: skills remove audio_denoiser"
+    result = sm.uninstall_skill(skill_id)
+    if result.get("ok"):
+        return f'✅ 技能 "{skill_id}" 已卸载'
+    return f'❌ 卸载失败: {result.get("error", "未知错误")}'
+
+
+def _skills_cli_list(sm) -> str:
+    skills = sm.list_all_skills()
+    if not skills:
+        return "(暂无已安装的技能)\n💡 输入 skills market 浏览可安装的技能"
+    lines = [f"── 已安装技能 ({len(skills)}) ──"]
+    for s in skills:
+        status_icon = "●" if s.get("status") == "running" else "○"
+        lines.append(
+            f"  {status_icon} {s.get('id', ''):<24} {s.get('name', ''):<14} "
+            f"v{s.get('version', '1.0.0'):<8} {s.get('status', 'idle')}"
+        )
+    return "\n".join(lines)
+
+
+def _skills_cli_search(sm, query: str) -> str:
+    if not query:
+        return "用法: skills search <关键词>"
+    marketplace = sm.get_marketplace_skills()
+    q = query.lower()
+    results = [
+        s for s in marketplace
+        if q in s.get("id", "").lower()
+        or q in s.get("name", "").lower()
+        or q in s.get("description", "").lower()
+        or any(q in t.lower() for t in s.get("tags", []))
+        or q in s.get("author", "").lower()
+    ]
+    if not results:
+        return f'未找到匹配 "{query}" 的技能'
+    lines = [f"── 搜索结果 ({len(results)}) ──"]
+    for s in results:
+        status = "✓ 已安装" if s.get("installed") else "+ 可安装"
+        lines.append(
+            f"  {s.get('id', ''):<24} {s.get('name', ''):<14} "
+            f"v{s.get('version', ''):<8} {s.get('author', ''):<16} {status}"
+        )
+    lines.append("💡 输入 skills add <id> 安装技能")
+    return "\n".join(lines)
+
+
+def _skills_cli_market(sm) -> str:
+    marketplace = sm.get_marketplace_skills()
+    if not marketplace:
+        return "(市场暂无可用的技能)"
+    lines = [f"── 技能市场 ({len(marketplace)}) ──"]
+    for s in marketplace:
+        stars = "★" * int(s.get("rating", 0)) + "☆" * (5 - int(s.get("rating", 0)))
+        status = "✓ 已安装" if s.get("installed") else "+ 可安装"
+        lines.append(
+            f"  {s.get('id', ''):<24} {stars} {s.get('rating', 0)}"
+        )
+        lines.append(
+            f"    {s.get('name', ''):<14} v{s.get('version', ''):<8} "
+            f"{s.get('author', ''):<16} {s.get('size', ''):<8} {status}"
+        )
+    lines.append("💡 输入 skills add <id> 安装技能")
+    return "\n".join(lines)
+
+
 # ── Skill icon/color mapping ─────────────────────────────────────
 
 _SKILL_ICONS = {
@@ -367,6 +630,7 @@ class BridgeHTTPHandler(BaseHTTPRequestHandler):
         routes = {
             '/api/settings': handle_get_settings,
             '/api/skills': handle_get_skills,
+            '/api/skills/marketplace': handle_get_marketplace,
             '/api/memos': handle_get_memos,
             '/api/tasks': handle_get_tasks,
             '/api/vault': handle_get_vault,
@@ -397,6 +661,9 @@ class BridgeHTTPHandler(BaseHTTPRequestHandler):
             '/api/vault': handle_post_vault,
             '/api/focus': handle_post_focus,
             '/api/cron': handle_post_cron,
+            '/api/skills/install': handle_install_skill,
+            '/api/skills/install/file': handle_install_skill_file,
+            '/api/skills/scan': handle_scan_skills,
         }
         handler = routes.get(path)
         if handler:
@@ -406,12 +673,14 @@ class BridgeHTTPHandler(BaseHTTPRequestHandler):
 
     def do_DELETE(self):
         path = urlparse(self.path).path.rstrip('/')
-        # /api/tasks/<id> or /api/cron/<id>
+        # /api/tasks/<id> or /api/cron/<id> or /api/skills/<id>
         parts = [p for p in path.split('/') if p]
         if len(parts) == 4 and parts[2] == 'tasks':
             handle_delete_task(self, parts[3])
         elif len(parts) == 4 and parts[2] == 'cron':
             handle_delete_cron(self, parts[3])
+        elif len(parts) == 4 and parts[2] == 'skills':
+            handle_delete_skill(self, parts[3])
         else:
             _json_response(self, {"error": "Not Found"}, 404)
 
@@ -466,13 +735,24 @@ async def _ws_handler(websocket, path):
 
             elif msg_type == "terminal":
                 cmd = msg.get("command", "")
-                result = _plugin("hello_cli", "run", command=cmd)
-                output = result.get("data", result) if isinstance(result, dict) else result
-                await websocket.send(json.dumps({
-                    "type": "terminal:output",
-                    "output": str(output) if not isinstance(output, str) else output,
-                    "status": result.get("status", "success") if isinstance(result, dict) else "success",
-                }))
+                lower_cmd = cmd.lower().strip()
+                # Intercept skills CLI commands
+                if lower_cmd == "skills" or lower_cmd.startswith("skills "):
+                    args = cmd[len("skills"):].strip()
+                    output = handle_skills_cli(args)
+                    await websocket.send(json.dumps({
+                        "type": "terminal:output",
+                        "output": output,
+                        "status": "success",
+                    }))
+                else:
+                    result = _plugin("hello_cli", "run", command=cmd)
+                    output = result.get("data", result) if isinstance(result, dict) else result
+                    await websocket.send(json.dumps({
+                        "type": "terminal:output",
+                        "output": str(output) if not isinstance(output, str) else output,
+                        "status": result.get("status", "success") if isinstance(result, dict) else "success",
+                    }))
 
             elif msg_type == "workflow:create":
                 result = _core_method("workflow_engine", "create_workflow",
