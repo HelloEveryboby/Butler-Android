@@ -1,494 +1,1637 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>Butler AI</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Noto+Sans+SC:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link rel="stylesheet" href="src/style.css">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Butler AI — Apple Style</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Noto+Sans+SC:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+/* =============================================
+   Butler AI — Apple-Inspired Design
+   Clean. Refined. Every pixel intentional.
+   ============================================= */
+
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+
+:root{
+  /* Light */
+  --bg:#f5f5f7;
+  --bg2:#ffffff;
+  --bg3:#e8e8ed;
+  --surface:#ffffff;
+  --text:#1d1d1f;
+  --text2:#6e6e73;
+  --text3:#aeaeb2;
+  --blue:#007aff;
+  --green:#34c759;
+  --orange:#ff9f0a;
+  --red:#ff3b30;
+  --purple:#af52de;
+  --pink:#ff2d55;
+  --teal:#5ac8fa;
+  --separator:rgba(0,0,0,0.06);
+  --card-shadow:0 1px 3px rgba(0,0,0,0.04), 0 4px 12px rgba(0,0,0,0.03);
+  --card-shadow-lg:0 2px 8px rgba(0,0,0,0.06), 0 12px 40px rgba(0,0,0,0.06);
+  --radius:14px;
+  --radius-lg:20px;
+  --radius-sm:10px;
+  --font:'Inter','Noto Sans SC',-apple-system,BlinkMacSystemFont,sans-serif;
+  --font-mono:'SF Mono','Menlo','Consolas',monospace;
+}
+
+html{font-size:16px}
+body{
+  font-family:var(--font);
+  background:var(--bg);
+  color:var(--text);
+  min-height:100vh;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  padding:48px 20px;
+  -webkit-font-smoothing:antialiased;
+  -moz-osx-font-smoothing:grayscale;
+  width:100%;
+  overflow-x:hidden;
+}
+
+/* ===== SHOWCASE ===== */
+.showcase{width:100%;max-width:1400px}
+
+.showcase-header{
+  text-align:center;
+  margin-bottom:56px;
+}
+.showcase-header h1{
+  font-size:2.8rem;
+  font-weight:700;
+  letter-spacing:-0.04em;
+  color:var(--text);
+  margin-bottom:6px;
+  background:linear-gradient(135deg,#1d1d1f 0%,#6e6e73 100%);
+  -webkit-background-clip:text;
+  -webkit-text-fill-color:transparent;
+  background-clip:text;
+}
+.showcase-header .sub{
+  font-size:1.05rem;
+  color:var(--text3);
+  font-weight:400;
+  letter-spacing:0.01em;
+}
+
+/* ===== PHONE GRID ===== */
+.phone-grid{
+  display:flex;
+  flex-direction:column;
+  gap:48px;
+  align-items:center;
+  margin-bottom:72px;
+}
+
+.phone-wrap{
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  gap:18px;
+}
+
+.phone-tag{
+  display:inline-flex;
+  align-items:center;
+  gap:6px;
+  padding:6px 14px;
+  background:var(--bg2);
+  border-radius:20px;
+  font-size:0.72rem;
+  font-weight:600;
+  color:var(--text2);
+  box-shadow:var(--card-shadow);
+  letter-spacing:0.02em;
+}
+.phone-tag .dot{
+  width:7px;height:7px;border-radius:50%;
+}
+.phone-tag .dot.b{background:var(--blue)}
+.phone-tag .dot.p{background:var(--purple)}
+.phone-tag .dot.g{background:var(--green)}
+.phone-tag .dot.o{background:var(--orange)}
+
+/* ===== IPHONE FRAME ===== */
+.iphone{
+  width:393px;
+  height:852px;
+  background:#fff;
+  border-radius:50px;
+  border:12px solid #1a1a1e;
+  position:relative;
+  overflow:hidden;
+  box-shadow:
+    0 0 0 1px rgba(0,0,0,0.08),
+    0 25px 80px rgba(0,0,0,0.12),
+    inset 0 0 0 1px rgba(255,255,255,0.1);
+  flex-shrink:0;
+  transform-origin:top center;
+}
+
+/* Dynamic Island */
+.island{
+  position:absolute;
+  top:12px;
+  left:50%;
+  transform:translateX(-50%);
+  width:126px;
+  height:37px;
+  background:#000;
+  border-radius:20px;
+  z-index:200;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+}
+
+/* Status Bar */
+.sb{
+  height:58px;
+  padding:16px 32px 0;
+  display:flex;
+  justify-content:space-between;
+  align-items:flex-start;
+  font-size:0.82rem;
+  font-weight:600;
+  color:var(--text);
+  position:relative;
+  z-index:50;
+}
+.sb-r{display:flex;gap:5px;align-items:center}
+.sb-r svg{width:16px;height:16px;fill:var(--text)}
+
+/* App area */
+.app{
+  position:absolute;
+  top:58px;bottom:0;left:0;right:0;
+  display:flex;
+  flex-direction:column;
+  overflow:hidden;
+}
+
+.screen{display:none;flex-direction:column;flex:1;overflow:hidden}
+.screen.on{display:flex}
+
+/* Scroll area */
+.scroll{
+  flex:1;
+  overflow-y:auto;
+  overflow-x:hidden;
+  -webkit-overflow-scrolling:touch;
+  scrollbar-width:none;
+}
+.scroll::-webkit-scrollbar{display:none}
+
+/* ===== HOME ===== */
+.hero{
+  padding:24px 24px 0;
+}
+.hero-time{
+  font-size:4.2rem;
+  font-weight:700;
+  letter-spacing:-0.04em;
+  line-height:1;
+  color:var(--text);
+}
+.hero-date{
+  font-size:1rem;
+  color:var(--text2);
+  margin-top:4px;
+  font-weight:400;
+}
+
+/* Widget Cards */
+.widgets{
+  padding:16px 20px 0;
+  display:flex;
+  flex-direction:column;
+  gap:12px;
+}
+
+.widget{
+  background:var(--surface);
+  border-radius:var(--radius-lg);
+  padding:18px 20px;
+  box-shadow:var(--card-shadow);
+}
+
+.widget-head{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  margin-bottom:12px;
+}
+
+.widget-label{
+  font-size:0.7rem;
+  font-weight:600;
+  text-transform:uppercase;
+  letter-spacing:0.06em;
+  color:var(--text3);
+}
+
+.widget-action{
+  font-size:0.72rem;
+  color:var(--blue);
+  font-weight:500;
+  cursor:pointer;
+}
+
+/* Stats Widget */
+.stats-row{
+  display:flex;
+  gap:1px;
+}
+.stat-item{
+  flex:1;
+  text-align:center;
+  padding:8px 0;
+}
+.stat-num{
+  font-size:1.8rem;
+  font-weight:700;
+  letter-spacing:-0.03em;
+  font-variant-numeric:tabular-nums;
+  line-height:1.1;
+}
+.stat-label{
+  font-size:0.62rem;
+  color:var(--text3);
+  margin-top:2px;
+  font-weight:500;
+}
+.stat-num.blue{color:var(--blue)}
+.stat-num.green{color:var(--green)}
+.stat-num.orange{color:var(--orange)}
+
+/* Grid Widget */
+.w-grid{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:10px;
+}
+.w-grid-item{
+  display:flex;
+  align-items:center;
+  gap:10px;
+  padding:10px 12px;
+  background:var(--bg);
+  border-radius:var(--radius-sm);
+  cursor:pointer;
+  transition:background 0.15s;
+}
+.w-grid-item:active{background:var(--bg3)}
+
+.w-gi-icon{
+  width:34px;height:34px;
+  border-radius:9px;
+  display:flex;align-items:center;justify-content:center;
+  font-size:1rem;
+  flex-shrink:0;
+}
+.w-gi-icon.b{background:rgba(0,122,255,0.1)}
+.w-gi-icon.p{background:rgba(175,82,222,0.1)}
+.w-gi-icon.g{background:rgba(52,199,89,0.1)}
+.w-gi-icon.o{background:rgba(255,159,10,0.1)}
+
+.w-gi-text{min-width:0}
+.w-gi-name{font-size:0.78rem;font-weight:600;line-height:1.2}
+.w-gi-desc{font-size:0.6rem;color:var(--text3);margin-top:1px}
+
+/* List Widget */
+.w-list{display:flex;flex-direction:column}
+.w-list-item{
+  display:flex;
+  align-items:center;
+  gap:12px;
+  padding:11px 0;
+  border-bottom:1px solid var(--separator);
+  cursor:pointer;
+}
+.w-list-item:last-child{border-bottom:none}
+
+.w-li-avatar{
+  width:42px;height:42px;
+  border-radius:12px;
+  display:flex;align-items:center;justify-content:center;
+  font-size:1.1rem;
+  flex-shrink:0;
+  background:var(--bg);
+}
+.w-li-body{flex:1;min-width:0}
+.w-li-title{font-size:0.82rem;font-weight:600;line-height:1.2}
+.w-li-sub{
+  font-size:0.68rem;
+  color:var(--text2);
+  margin-top:2px;
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
+}
+.w-li-meta{
+  font-size:0.6rem;
+  color:var(--text3);
+  flex-shrink:0;
+  font-variant-numeric:tabular-nums;
+}
+
+/* ===== CHAT ===== */
+.nav-bar{
+  height:52px;
+  padding:0 16px;
+  display:flex;
+  align-items:center;
+  gap:8px;
+  border-bottom:0.5px solid var(--separator);
+  flex-shrink:0;
+  background:#fff;
+}
+.nav-back{
+  font-size:1.2rem;
+  color:var(--blue);
+  cursor:pointer;
+  padding:4px;
+  line-height:1;
+}
+.nav-title{
+  flex:1;
+  text-align:center;
+  font-size:0.92rem;
+  font-weight:600;
+}
+.nav-sub{
+  display:block;
+  font-size:0.6rem;
+  color:var(--text3);
+  font-weight:400;
+}
+.nav-right{
+  font-size:1rem;
+  color:var(--blue);
+  cursor:pointer;
+  padding:4px;
+}
+
+/* Messages */
+.msgs{
+  flex:1;
+  padding:12px 16px;
+  display:flex;
+  flex-direction:column;
+  gap:8px;
+  overflow-y:auto;
+  scrollbar-width:none;
+}
+.msgs::-webkit-scrollbar{display:none}
+
+.msg{
+  max-width:78%;
+  padding:9px 14px;
+  font-size:0.88rem;
+  line-height:1.45;
+  position:relative;
+  animation:msgUp 0.2s ease;
+}
+@keyframes msgUp{
+  from{opacity:0;transform:translateY(6px)}
+  to{opacity:1;transform:translateY(0)}
+}
+
+.msg.me{
+  align-self:flex-end;
+  background:var(--blue);
+  color:#fff;
+  border-radius:18px 18px 4px 18px;
+}
+
+.msg.him{
+  align-self:flex-start;
+  background:var(--bg);
+  color:var(--text);
+  border-radius:18px 18px 18px 4px;
+}
+
+.msg code{
+  display:block;
+  background:rgba(0,0,0,0.04);
+  border-radius:8px;
+  padding:8px 10px;
+  margin:6px 0 2px;
+  font-family:var(--font-mono);
+  font-size:0.72rem;
+  line-height:1.6;
+  white-space:pre;
+  overflow-x:auto;
+  color:#1d1d1f;
+}
+
+.msg-t{
+  font-size:0.55rem;
+  color:rgba(255,255,255,0.6);
+  margin-top:3px;
+  text-align:right;
+}
+.msg.him .msg-t{color:var(--text3)}
+
+/* Typing */
+.typing{
+  display:flex;
+  align-items:center;
+  gap:4px;
+  padding:9px 14px;
+  background:var(--bg);
+  border-radius:18px 18px 18px 4px;
+  align-self:flex-start;
+  width:64px;
+}
+.typing span{
+  width:7px;height:7px;
+  background:var(--text3);
+  border-radius:50%;
+  animation:bounce 1.4s ease infinite;
+}
+.typing span:nth-child(2){animation-delay:0.2s}
+.typing span:nth-child(3){animation-delay:0.4s}
+@keyframes bounce{
+  0%,60%,100%{transform:translateY(0)}
+  30%{transform:translateY(-5px)}
+}
+
+/* Chat input */
+.chat-bar{
+  padding:8px 12px 28px;
+  display:flex;
+  align-items:flex-end;
+  gap:8px;
+  border-top:0.5px solid var(--separator);
+  background:#fff;
+  flex-shrink:0;
+}
+
+.chat-field{
+  flex:1;
+  display:flex;
+  align-items:center;
+  background:var(--bg);
+  border-radius:22px;
+  padding:8px 8px 8px 16px;
+  gap:6px;
+}
+
+.chat-field input{
+  flex:1;
+  background:none;
+  border:none;
+  outline:none;
+  font-family:var(--font);
+  font-size:0.88rem;
+  color:var(--text);
+  min-width:0;
+}
+.chat-field input::placeholder{color:var(--text3)}
+
+.chat-plus{
+  width:28px;height:28px;
+  border-radius:50%;
+  background:var(--bg3);
+  display:flex;align-items:center;justify-content:center;
+  font-size:1rem;
+  color:var(--text2);
+  cursor:pointer;
+  flex-shrink:0;
+}
+
+.send-circle{
+  width:32px;height:32px;
+  border-radius:50%;
+  background:var(--blue);
+  display:flex;align-items:center;justify-content:center;
+  cursor:pointer;
+  flex-shrink:0;
+  transition:transform 0.1s;
+}
+.send-circle:active{transform:scale(0.9)}
+.send-circle svg{width:16px;height:16px;fill:#fff;margin-left:-1px}
+
+/* ===== SKILLS ===== */
+.search-pill{
+  margin:8px 20px 0;
+  height:36px;
+  background:var(--bg);
+  border-radius:10px;
+  display:flex;
+  align-items:center;
+  padding:0 12px;
+  gap:6px;
+}
+.search-pill svg{width:14px;height:14px;fill:var(--text3);flex-shrink:0}
+.search-pill input{
+  flex:1;background:none;border:none;outline:none;
+  font-family:var(--font);font-size:0.82rem;color:var(--text);
+}
+.search-pill input::placeholder{color:var(--text3)}
+
+.sec-title{
+  padding:18px 24px 8px;
+  font-size:0.68rem;
+  font-weight:600;
+  text-transform:uppercase;
+  letter-spacing:0.06em;
+  color:var(--text3);
+}
+
+.skill-list{
+  padding:0 20px;
+  display:flex;
+  flex-direction:column;
+  gap:8px;
+}
+
+.s-card{
+  display:flex;
+  align-items:center;
+  gap:14px;
+  padding:14px 16px;
+  background:var(--surface);
+  border-radius:var(--radius);
+  box-shadow:var(--card-shadow);
+  cursor:pointer;
+  transition:all 0.15s;
+}
+.s-card:active{transform:scale(0.98);background:var(--bg)}
+
+.s-icon{
+  width:44px;height:44px;
+  border-radius:12px;
+  display:flex;align-items:center;justify-content:center;
+  font-size:1.2rem;
+  flex-shrink:0;
+}
+.s-icon.b{background:rgba(0,122,255,0.08)}
+.s-icon.p{background:rgba(175,82,222,0.08)}
+.s-icon.g{background:rgba(52,199,89,0.08)}
+.s-icon.o{background:rgba(255,159,10,0.08)}
+.s-icon.r{background:rgba(255,59,48,0.08)}
+.s-icon.t{background:rgba(90,200,250,0.08)}
+
+.s-body{flex:1;min-width:0}
+.s-name{font-size:0.85rem;font-weight:600;line-height:1.2}
+.s-desc{font-size:0.68rem;color:var(--text2);margin-top:2px}
+
+.s-go{
+  width:28px;height:28px;
+  border-radius:50%;
+  background:var(--bg);
+  display:flex;align-items:center;justify-content:center;
+  flex-shrink:0;
+}
+.s-go svg{width:12px;height:12px;fill:var(--text3)}
+
+/* ===== TERMINAL ===== */
+.term-wrap{
+  flex:1;
+  background:#1a1a1e;
+  display:flex;
+  flex-direction:column;
+  overflow:hidden;
+}
+
+.term-header{
+  height:44px;
+  padding:0 16px;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  border-bottom:0.5px solid rgba(255,255,255,0.06);
+  flex-shrink:0;
+}
+.term-dots{display:flex;gap:6px}
+.term-dots span{
+  width:10px;height:10px;border-radius:50%;
+}
+.term-dots .r{background:#ff5f57}
+.term-dots .y{background:#febc2e}
+.term-dots .g{background:#28c840}
+
+.term-tabs{
+  display:flex;
+  gap:2px;
+  background:rgba(255,255,255,0.06);
+  border-radius:6px;
+  padding:2px;
+}
+.term-tab{
+  padding:3px 10px;
+  font-size:0.62rem;
+  color:rgba(255,255,255,0.4);
+  border-radius:4px;
+  cursor:pointer;
+  font-weight:500;
+}
+.term-tab.on{
+  background:rgba(255,255,255,0.1);
+  color:rgba(255,255,255,0.8);
+}
+
+.term-body{
+  flex:1;
+  padding:12px 16px;
+  font-family:var(--font-mono);
+  font-size:0.72rem;
+  line-height:1.75;
+  overflow-y:auto;
+  color:#e0e0e0;
+  scrollbar-width:none;
+}
+.term-body::-webkit-scrollbar{display:none}
+
+.tl{margin-bottom:1px}
+.tl .p{color:#78dce8}
+.tl .c{color:#e0e0e0}
+.tl .o{color:#a9dc76}
+.tl .e{color:#ff6188}
+.tl .i{color:#78dce8}
+.tl .w{color:#ffd866}
+
+.cursor-b{
+  display:inline-block;
+  width:8px;height:15px;
+  background:#a9dc76;
+  animation:cb 1s step-end infinite;
+  vertical-align:middle;
+  margin-left:2px;
+}
+@keyframes cb{0%,100%{opacity:1}50%{opacity:0}}
+
+.term-input-bar{
+  padding:8px 16px 28px;
+  display:flex;
+  align-items:center;
+  gap:8px;
+  border-top:0.5px solid rgba(255,255,255,0.06);
+  flex-shrink:0;
+  background:#1a1a1e;
+}
+.term-input{
+  flex:1;
+  background:rgba(255,255,255,0.06);
+  border:1px solid rgba(255,255,255,0.08);
+  border-radius:8px;
+  padding:7px 12px;
+  font-family:var(--font-mono);
+  font-size:0.72rem;
+  color:#e0e0e0;
+  outline:none;
+}
+.term-input::placeholder{color:rgba(255,255,255,0.25)}
+
+/* ===== SETTINGS ===== */
+.s-section{
+  padding:0 20px;
+  margin-bottom:24px;
+}
+.s-sec-title{
+  font-size:0.62rem;
+  font-weight:600;
+  text-transform:uppercase;
+  letter-spacing:0.08em;
+  color:var(--text3);
+  margin-bottom:8px;
+  padding-left:4px;
+}
+
+.s-group{
+  background:var(--surface);
+  border-radius:var(--radius);
+  box-shadow:var(--card-shadow);
+  overflow:hidden;
+}
+
+.s-item{
+  display:flex;
+  align-items:center;
+  padding:13px 16px;
+  gap:12px;
+  cursor:pointer;
+  border-bottom:0.5px solid var(--separator);
+  transition:background 0.1s;
+}
+.s-item:last-child{border-bottom:none}
+.s-item:active{background:var(--bg)}
+
+.si-icon{
+  width:30px;height:30px;
+  border-radius:7px;
+  display:flex;align-items:center;justify-content:center;
+  font-size:0.85rem;
+  flex-shrink:0;
+}
+.si-icon.b{background:rgba(0,122,255,0.1)}
+.si-icon.p{background:rgba(175,82,222,0.1)}
+.si-icon.g{background:rgba(52,199,89,0.1)}
+.si-icon.o{background:rgba(255,159,10,0.1)}
+.si-icon.r{background:rgba(255,59,48,0.1)}
+.si-icon.t{background:rgba(90,200,250,0.1)}
+
+.si-body{flex:1;min-width:0}
+.si-name{font-size:0.85rem;font-weight:400}
+.si-sub{font-size:0.62rem;color:var(--text3);margin-top:1px}
+
+.si-val{font-size:0.78rem;color:var(--text3);flex-shrink:0}
+.si-arrow{color:var(--text3);font-size:0.68rem;flex-shrink:0;opacity:0.5}
+
+/* iOS Toggle */
+.ios-toggle{
+  width:51px;height:31px;
+  background:#e9e9ea;
+  border-radius:16px;
+  position:relative;
+  cursor:pointer;
+  flex-shrink:0;
+  transition:background 0.25s;
+}
+.ios-toggle.on{background:var(--green)}
+.ios-toggle::after{
+  content:'';
+  position:absolute;
+  top:2px;left:2px;
+  width:27px;height:27px;
+  background:#fff;
+  border-radius:50%;
+  box-shadow:0 1px 3px rgba(0,0,0,0.15);
+  transition:transform 0.25s cubic-bezier(0.4,0,0.2,1);
+}
+.ios-toggle.on::after{transform:translateX(20px)}
+
+/* Profile card */
+.profile-card{
+  margin:8px 20px 20px;
+  background:var(--surface);
+  border-radius:var(--radius-lg);
+  padding:20px;
+  box-shadow:var(--card-shadow);
+  display:flex;
+  align-items:center;
+  gap:14px;
+}
+.profile-avatar{
+  width:56px;height:56px;
+  border-radius:16px;
+  background:linear-gradient(135deg,#007aff,#af52de);
+  display:flex;align-items:center;justify-content:center;
+  font-size:1.6rem;
+  flex-shrink:0;
+}
+.profile-info{flex:1}
+.profile-name{font-size:1.05rem;font-weight:600;letter-spacing:-0.01em}
+.profile-sub{font-size:0.7rem;color:var(--text2);margin-top:2px}
+.profile-badge{
+  display:inline-flex;align-items:center;gap:4px;
+  font-size:0.62rem;color:var(--green);font-weight:500;
+  margin-top:4px;
+}
+.profile-badge::before{
+  content:'';width:6px;height:6px;
+  background:var(--green);border-radius:50%;
+}
+
+/* ===== TAB BAR ===== */
+.tab-bar{
+  position:absolute;
+  bottom:0;left:0;right:0;
+  height:84px;
+  background:rgba(255,255,255,0.85);
+  -webkit-backdrop-filter:saturate(180%) blur(20px);
+  backdrop-filter:saturate(180%) blur(20px);
+  border-top:0.5px solid var(--separator);
+  display:flex;
+  align-items:flex-start;
+  justify-content:space-around;
+  padding-top:6px;
+  z-index:100;
+}
+
+.tab{
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  gap:2px;
+  padding:4px 0;
+  cursor:pointer;
+  min-width:50px;
+  position:relative;
+}
+.tab svg{
+  width:24px;height:24px;
+  fill:var(--text3);
+  transition:fill 0.15s;
+}
+.tab span{
+  font-size:0.58rem;
+  font-weight:500;
+  color:var(--text3);
+  transition:color 0.15s;
+}
+.tab.on svg{fill:var(--blue)}
+.tab.on span{color:var(--blue)}
+
+/* ===== MEMOS ===== */
+.memo-card{
+  margin:0 20px 10px;
+  background:var(--surface);
+  border-radius:var(--radius);
+  padding:16px 18px;
+  box-shadow:var(--card-shadow);
+  cursor:pointer;
+  transition:transform 0.15s;
+}
+.memo-card:active{transform:scale(0.98)}
+.memo-title{font-size:0.88rem;font-weight:600;margin-bottom:4px;line-height:1.3}
+.memo-excerpt{
+  font-size:0.72rem;
+  color:var(--text2);
+  line-height:1.5;
+  display:-webkit-box;
+  -webkit-line-clamp:2;
+  -webkit-box-orient:vertical;
+  overflow:hidden;
+}
+.memo-foot{
+  display:flex;
+  align-items:center;
+  gap:8px;
+  margin-top:10px;
+}
+.memo-tag{
+  padding:2px 8px;
+  background:rgba(0,122,255,0.08);
+  color:var(--blue);
+  border-radius:4px;
+  font-size:0.58rem;
+  font-weight:600;
+}
+.memo-date{font-size:0.58rem;color:var(--text3)}
+
+/* FAB */
+.fab-btn{
+  position:absolute;
+  bottom:96px;
+  right:20px;
+  width:52px;height:52px;
+  background:var(--blue);
+  border-radius:50%;
+  display:flex;align-items:center;justify-content:center;
+  box-shadow:0 4px 16px rgba(0,122,255,0.3);
+  cursor:pointer;
+  z-index:90;
+  transition:transform 0.15s;
+}
+.fab-btn:active{transform:scale(0.9)}
+.fab-btn svg{width:22px;height:22px;fill:#fff}
+
+/* ===== DESIGN SPECS ===== */
+.specs{
+  max-width:1400px;
+  width:100%;
+  margin-top:8px;
+}
+.specs h2{
+  font-size:1.8rem;
+  font-weight:700;
+  letter-spacing:-0.03em;
+  text-align:center;
+  margin-bottom:40px;
+  color:var(--text);
+}
+
+.spec-grid{
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(300px,1fr));
+  gap:16px;
+}
+
+.spec-card{
+  background:var(--bg2);
+  border-radius:var(--radius-lg);
+  padding:24px;
+  box-shadow:var(--card-shadow);
+}
+
+.spec-card h3{
+  font-size:0.72rem;
+  font-weight:600;
+  text-transform:uppercase;
+  letter-spacing:0.08em;
+  color:var(--blue);
+  margin-bottom:12px;
+}
+
+.spec-card p{
+  font-size:0.78rem;
+  color:var(--text2);
+  line-height:1.65;
+}
+
+.spec-card ul{list-style:none;padding:0}
+.spec-card li{
+  font-size:0.75rem;
+  color:var(--text2);
+  padding:4px 0;
+  padding-left:16px;
+  position:relative;
+  line-height:1.5;
+}
+.spec-card li::before{
+  content:'';position:absolute;left:0;top:12px;
+  width:4px;height:4px;border-radius:50%;
+  background:var(--text3);
+}
+
+/* Color chips */
+.color-row{
+  display:flex;gap:8px;flex-wrap:wrap;margin-top:8px;
+}
+.chip{
+  display:flex;align-items:center;gap:6px;
+  padding:6px 10px;
+  background:var(--bg);
+  border-radius:8px;
+}
+.chip-dot{
+  width:14px;height:14px;border-radius:4px;
+}
+.chip-label{
+  font-size:0.65rem;
+  color:var(--text2);
+  font-weight:500;
+  font-family:var(--font-mono);
+}
+
+/* ===== Responsive — transform scale ===== */
+
+@media(max-width:960px){
+  .iphone{transform:scale(0.85)}
+  .phone-wrap{margin-bottom:-80px}
+  .phone-grid{gap:36px}
+}
+
+@media(max-width:700px){
+  .iphone{transform:scale(0.72)}
+  .phone-wrap{margin-bottom:-150px}
+  .phone-grid{gap:28px}
+  .showcase-header h1{font-size:2.2rem}
+  body{padding:32px 12px}
+}
+
+@media(max-width:500px){
+  .iphone{transform:scale(0.58)}
+  .phone-wrap{margin-bottom:-240px}
+  .phone-grid{gap:20px}
+  .showcase-header h1{font-size:1.8rem}
+  .showcase-header .sub{font-size:0.85rem}
+  .showcase-header{margin-bottom:32px}
+  body{padding:20px 8px}
+  .phone-tag{font-size:0.62rem;padding:4px 10px}
+  .spec-grid{grid-template-columns:1fr}
+  .specs h2{font-size:1.4rem}
+  .spec-card{padding:16px}
+}
+</style>
 </head>
 <body>
-    <!-- Background Canvas -->
-    <canvas id="substrate-heatmap"></canvas>
 
-    <div class="app-container" id="app">
-        <!-- Status Bar -->
-        <div class="status-bar">
-            <span id="statusTime">9:41</span>
-            <div class="sb-r">
-                <svg viewBox="0 0 24 24"><path d="M1 9l2 2c4.97-4.97 13.03-4.97 18 0l2-2C16.93 2.93 7.08 2.93 1 9zm8 8l3 3 3-3c-1.65-1.66-4.34-1.66-6 0zm-4-4l2 2c2.76-2.76 7.24-2.76 10 0l2-2C15.14 9.14 8.87 9.14 5 13z"/></svg>
-                <svg viewBox="0 0 24 24"><path d="M15.67 4H14V2h-4v2H8.33C7.6 4 7 4.6 7 5.33v15.33C7 21.4 7.6 22 8.33 22h7.33c.74 0 1.34-.6 1.34-1.33V5.33C17 4.6 16.4 4 15.67 4z"/></svg>
-            </div>
+<div class="showcase">
+
+  <div class="showcase-header">
+    <h1>Butler AI</h1>
+    <div class="sub">Apple-Inspired Android UI</div>
+  </div>
+
+  <div class="phone-grid">
+
+    <!-- ==================== HOME ==================== -->
+    <div class="phone-wrap">
+      <div class="phone-tag"><span class="dot b"></span>Home</div>
+      <div class="iphone">
+        <div class="island"></div>
+        <div class="sb">
+          <span>9:41</span>
+          <div class="sb-r">
+            <svg viewBox="0 0 24 24"><path d="M1 9l2 2c4.97-4.97 13.03-4.97 18 0l2-2C16.93 2.93 7.08 2.93 1 9zm8 8l3 3 3-3c-1.65-1.66-4.34-1.66-6 0zm-4-4l2 2c2.76-2.76 7.24-2.76 10 0l2-2C15.14 9.14 8.87 9.14 5 13z"/></svg>
+            <svg viewBox="0 0 24 24"><path d="M15.67 4H14V2h-4v2H8.33C7.6 4 7 4.6 7 5.33v15.33C7 21.4 7.6 22 8.33 22h7.33c.74 0 1.34-.6 1.34-1.33V5.33C17 4.6 16.4 4 15.67 4z"/></svg>
+          </div>
         </div>
 
-        <!-- Nav Bar -->
-        <div class="nav-bar" id="navBar">
-            <span class="nav-back" id="navBack" style="display:none">‹</span>
-            <div class="nav-title" id="navTitle">Butler AI</div>
-            <span class="nav-right" id="navRight" style="display:none"></span>
+        <div class="app">
+          <div class="screen on">
+            <div class="scroll">
+              <!-- Time -->
+              <div class="hero">
+                <div class="hero-time">9:41</div>
+                <div class="hero-date">7月23日 星期三</div>
+              </div>
+
+              <!-- Stats Widget -->
+              <div class="widgets">
+                <div class="widget">
+                  <div class="widget-head">
+                    <span class="widget-label">今日概览</span>
+                    <span class="widget-action">详情</span>
+                  </div>
+                  <div class="stats-row">
+                    <div class="stat-item">
+                      <div class="stat-num blue">24</div>
+                      <div class="stat-label">对话</div>
+                    </div>
+                    <div class="stat-item">
+                      <div class="stat-num green">8</div>
+                      <div class="stat-label">技能</div>
+                    </div>
+                    <div class="stat-item">
+                      <div class="stat-num orange">67%</div>
+                      <div class="stat-label">CPU</div>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Quick Entry Widget -->
+                <div class="widget">
+                  <div class="widget-head">
+                    <span class="widget-label">快捷入口</span>
+                  </div>
+                  <div class="w-grid">
+                    <div class="w-grid-item">
+                      <div class="w-gi-icon b">💬</div>
+                      <div class="w-gi-text">
+                        <div class="w-gi-name">对话</div>
+                        <div class="w-gi-desc">AI 聊天</div>
+                      </div>
+                    </div>
+                    <div class="w-grid-item">
+                      <div class="w-gi-icon p">⚡</div>
+                      <div class="w-gi-text">
+                        <div class="w-gi-name">技能</div>
+                        <div class="w-gi-desc">9 个可用</div>
+                      </div>
+                    </div>
+                    <div class="w-grid-item">
+                      <div class="w-gi-icon g">⌨️</div>
+                      <div class="w-gi-text">
+                        <div class="w-gi-name">终端</div>
+                        <div class="w-gi-desc">命令行</div>
+                      </div>
+                    </div>
+                    <div class="w-grid-item">
+                      <div class="w-gi-icon o">📝</div>
+                      <div class="w-gi-text">
+                        <div class="w-gi-name">备忘录</div>
+                        <div class="w-gi-desc">记录想法</div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Recent Widget -->
+                <div class="widget">
+                  <div class="widget-head">
+                    <span class="widget-label">最近对话</span>
+                    <span class="widget-action">查看全部</span>
+                  </div>
+                  <div class="w-list">
+                    <div class="w-list-item">
+                      <div class="w-li-avatar" style="background:rgba(0,122,255,0.08)">🤖</div>
+                      <div class="w-li-body">
+                        <div class="w-li-title">系统审计报告</div>
+                        <div class="w-li-sub">已完成全面安全扫描，发现 3 个潜在风险点</div>
+                      </div>
+                      <div class="w-li-meta">22:10</div>
+                    </div>
+                    <div class="w-list-item">
+                      <div class="w-li-avatar" style="background:rgba(175,82,222,0.08)">💡</div>
+                      <div class="w-li-body">
+                        <div class="w-li-title">代码重构建议</div>
+                        <div class="w-li-sub">建议将 WebSocket 模块拆分为独立服务</div>
+                      </div>
+                      <div class="w-li-meta">21:45</div>
+                    </div>
+                    <div class="w-list-item">
+                      <div class="w-li-avatar" style="background:rgba(52,199,89,0.08)">📊</div>
+                      <div class="w-li-body">
+                        <div class="w-li-title">数据分析</div>
+                        <div class="w-li-sub">上周用户活跃度提升 12%，主要来自新用户</div>
+                      </div>
+                      <div class="w-li-meta">20:30</div>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Status Widget -->
+                <div class="widget">
+                  <div class="widget-head">
+                    <span class="widget-label">系统状态</span>
+                    <span class="widget-action">刷新</span>
+                  </div>
+                  <div class="w-list">
+                    <div class="w-list-item" style="padding:8px 0">
+                      <div class="w-li-avatar" style="background:rgba(52,199,89,0.08);font-size:0.7rem">●</div>
+                      <div class="w-li-body">
+                        <div class="w-li-title" style="font-size:0.78rem">WebSocket</div>
+                        <div class="w-li-sub">ws://localhost:8080/ws</div>
+                      </div>
+                      <div style="font-size:0.62rem;color:var(--green);font-weight:500">已连接</div>
+                    </div>
+                    <div class="w-list-item" style="padding:8px 0">
+                      <div class="w-li-avatar" style="background:rgba(0,122,255,0.08);font-size:0.7rem">G</div>
+                      <div class="w-li-body">
+                        <div class="w-li-title" style="font-size:0.78rem">GPT-4o</div>
+                        <div class="w-li-sub">Temperature: 0.7</div>
+                      </div>
+                      <div style="font-size:0.62rem;color:var(--text3)">默认</div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div style="height:100px"></div>
+            </div>
+          </div>
         </div>
 
-        <!-- Content Area (pages rendered here) -->
-        <div class="content" id="content">
-            <!-- Home Page -->
-            <div class="page" id="page-home"></div>
-            <!-- Tools Page -->
-            <div class="page" id="page-tools"></div>
+        <div class="tab-bar">
+          <div class="tab on">
+            <svg viewBox="0 0 24 24"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg>
+            <span>首页</span>
+          </div>
+          <div class="tab">
+            <svg viewBox="0 0 24 24"><path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm0 14H6l-2 2V4h16v12z"/></svg>
+            <span>对话</span>
+          </div>
+          <div class="tab">
+            <svg viewBox="0 0 24 24"><path d="M13 2.05v2.02c3.95.49 7 3.85 7 7.93 0 3.21-1.92 6-4.72 7.28L13 17v5h5l-1.22-1.22C19.91 18.81 22 15.67 22 12c0-5.18-3.95-9.45-9-9.95zM11 2.07C7.32 2.56 4.2 5.04 3.08 8.45L1 10v5h5l-1.84-1.84C5.68 12.42 7.39 12 9 12c.35 0 .69.03 1.02.08L11 13v-2c0-.17.01-.33.02-.5L8.22 7.6C8.08 6.59 8 5.55 8 4.5c0-.17 0-.33.01-.5L5.1 6.94C4.43 8.09 4 9.45 4 10.91l-1.32-1.32C3.67 7.35 5.12 5.26 7.11 3.84L11 2.07z"/></svg>
+            <span>技能</span>
+          </div>
+          <div class="tab">
+            <svg viewBox="0 0 24 24"><path d="M9.4 16.6L4.8 12l4.6-4.6L8 6l-6 6 6 6 1.4-1.4zm5.2 0l4.6-4.6-4.6-4.6L16 6l6 6-6 6-1.4-1.4z"/></svg>
+            <span>终端</span>
+          </div>
+          <div class="tab">
+            <svg viewBox="0 0 24 24"><path d="M19.14 12.94c.04-.3.06-.61.06-.94 0-.32-.02-.64-.07-.94l2.03-1.58c.18-.14.23-.41.12-.61l-1.92-3.32c-.12-.22-.37-.29-.59-.22l-2.39.96c-.5-.38-1.03-.7-1.62-.94l-.36-2.54c-.04-.24-.24-.41-.48-.41h-3.84c-.24 0-.43.17-.47.41l-.36 2.54c-.59.24-1.13.57-1.62.94l-2.39-.96c-.22-.08-.47 0-.59.22L2.74 8.87c-.12.21-.08.47.12.61l2.03 1.58c-.05.3-.07.62-.07.94s.02.64.07.94l-2.03 1.58c-.18.14-.23.41-.12.61l1.92 3.32c.12.22.37.29.59.22l2.39-.96c.5.38 1.03.7 1.62.94l.36 2.54c.05.24.24.41.48.41h3.84c.24 0 .44-.17.47-.41l.36-2.54c.59-.24 1.13-.56 1.62-.94l2.39.96c.22.08.47 0 .59-.22l1.92-3.32c.12-.22.07-.47-.12-.61l-2.01-1.58zM12 15.6c-1.98 0-3.6-1.62-3.6-3.6s1.62-3.6 3.6-3.6 3.6 1.62 3.6 3.6-1.62 3.6-3.6 3.6z"/></svg>
+            <span>设置</span>
+          </div>
         </div>
-
-        <!-- Tab Bar -->
-        <div class="tab-bar" id="tabBar">
-            <div class="tab on" data-tab="home">
-                <svg viewBox="0 0 24 24"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg>
-                <span>首页</span>
-            </div>
-            <div class="tab" data-tab="chat">
-                <svg viewBox="0 0 24 24"><path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm0 14H6l-2 2V4h16v12z"/></svg>
-                <span>对话</span>
-            </div>
-            <div class="tab" data-tab="skills">
-                <svg viewBox="0 0 24 24"><path d="M13 2.05v2.02c3.95.49 7 3.85 7 7.93 0 3.21-1.92 6-4.72 7.28L13 17v5h5l-1.22-1.22C19.91 18.81 22 15.67 22 12c0-5.18-3.95-9.45-9-9.95zM11 2.07C7.32 2.56 4.2 5.04 3.08 8.45L1 10v5h5l-1.84-1.84C5.68 12.42 7.39 12 9 12c.35 0 .69.03 1.02.08L11 13v-2c0-.17.01-.33.02-.5L8.22 7.6C8.08 6.59 8 5.55 8 4.5c0-.17 0-.33.01-.5L5.1 6.94C4.43 8.09 4 9.45 4 10.91l-1.32-1.32C3.67 7.35 5.12 5.26 7.11 3.84L11 2.07z"/></svg>
-                <span>技能</span>
-            </div>
-            <div class="tab" data-tab="tools">
-                <svg viewBox="0 0 24 24"><path d="M22.7 19l-9.1-9.1c.9-2.3.4-5-1.5-6.9-2-2-5-2.4-7.4-1.3L9 6 6 9 1.6 4.7C.4 7.1.9 10.1 2.9 12.1c1.9 1.9 4.6 2.4 6.9 1.5l9.1 9.1c.4.4 1 .4 1.4 0l2.3-2.3c.5-.4.5-1.1.1-1.4z"/></svg>
-                <span>工具</span>
-            </div>
-            <div class="tab" data-tab="settings">
-                <svg viewBox="0 0 24 24"><path d="M19.14 12.94c.04-.3.06-.61.06-.94 0-.32-.02-.64-.07-.94l2.03-1.58c.18-.14.23-.41.12-.61l-1.92-3.32c-.12-.22-.37-.29-.59-.22l-2.39.96c-.5-.38-1.03-.7-1.62-.94l-.36-2.54c-.04-.24-.24-.41-.48-.41h-3.84c-.24 0-.43.17-.47.41l-.36 2.54c-.59.24-1.13.57-1.62.94l-2.39-.96c-.22-.08-.47 0-.59.22L2.74 8.87c-.12.21-.08.47.12.61l2.03 1.58c-.05.3-.07.62-.07.94s.02.64.07.94l-2.03 1.58c-.18.14-.23.41-.12.61l1.92 3.32c.12.22.37.29.59.22l2.39-.96c.5.38 1.03.7 1.62.94l.36 2.54c.05.24.24.41.48.41h3.84c.24 0 .44-.17.47-.41l.36-2.54c.59-.24 1.13-.56 1.62-.94l2.39.96c.22.08.47 0 .59-.22l1.92-3.32c.12-.22.07-.47-.12-.61l-2.01-1.58zM12 15.6c-1.98 0-3.6-1.62-3.6-3.6s1.62-3.6 3.6-3.6 3.6 1.62 3.6 3.6-1.62 3.6-3.6 3.6z"/></svg>
-                <span>设置</span>
-            </div>
-        </div>
+      </div>
     </div>
 
-    <!-- Hidden panels for module DOM targets (modules render into these) -->
-    <div id="hidden-panels" style="display:none">
-        <!-- Chat Panel -->
-        <section id="panel-chat">
-            <div class="panel-body" id="chat-body">
-                <div class="welcome-message" id="chat-welcome">
-                    <h1>你好，Butler</h1>
-                    <p>输入消息开始对话。</p>
-                    <div class="quick-actions-grid">
-                        <div class="quick-action-card" data-action="系统自检与安全审计">
-                            <i class="fas fa-shield-halved" style="color:#007AFF;"></i>
-                            <span class="qa-title">系统自检与审计</span>
-                            <span class="qa-desc">扫描安全配置与环境沙箱</span>
-                        </div>
-                        <div class="quick-action-card" data-action="一键清理系统垃圾">
-                            <i class="fas fa-broom" style="color:#FF9500;"></i>
-                            <span class="qa-title">一键清理垃圾</span>
-                            <span class="qa-desc">清除冗余缓存恢复磁盘空间</span>
-                        </div>
-                        <div class="quick-action-card" data-action="运行本地音频降噪">
-                            <i class="fas fa-wave-square" style="color:#34C759;"></i>
-                            <span class="qa-title">本地 FFT 降噪</span>
-                            <span class="qa-desc">C++ 音频算法降阶滤波</span>
-                        </div>
-                        <div class="quick-action-card" data-action="开启局域网同步">
-                            <i class="fas fa-network-wired" style="color:#AF52DE;"></i>
-                            <span class="qa-title">局域网同步</span>
-                            <span class="qa-desc">同步代码与资产到局域网</span>
-                        </div>
-                    </div>
-                </div>
-                <div class="chat-messages" id="chat-messages"></div>
-            </div>
-            <div class="chat-input-area">
-                <div class="chat-input-container">
-                    <div class="input-actions-left">
-                        <button class="icon-btn-small" id="voice-btn" title="语音输入"><i class="fas fa-microphone"></i></button>
-                        <button class="icon-btn-small" id="attach-btn" title="附件"><i class="fas fa-plus"></i></button>
-                    </div>
-                    <div class="input-wrapper">
-                        <textarea id="chat-input" placeholder="发送消息..." rows="1"></textarea>
-                    </div>
-                    <div class="input-actions-right">
-                        <button class="send-btn" id="send-btn" title="发送"><i class="fas fa-arrow-up"></i></button>
-                    </div>
-                </div>
-            </div>
-            <div class="status-indicators" style="display:none">
-                <span id="connection-status" class="status-dot green active"></span>
-                <span id="thinking-status" class="status-dot blue"></span>
-            </div>
-        </section>
-
-        <!-- Skills Panel -->
-        <section id="panel-skills">
-            <div class="panel-body" id="skills-body">
-                <div class="skills-grid" id="skills-grid"></div>
-            </div>
-        </section>
-
-        <!-- Workflow / DAG Panel -->
-        <section id="panel-workflow">
-            <div class="panel-body" id="workflow-body">
-                <div class="dag-toolbar">
-                    <button class="toolbar-btn" data-action="run" style="color:#34C759;"><i class="fas fa-play"></i> 启动</button>
-                    <button class="toolbar-btn" data-action="pause" style="color:#FF9500;"><i class="fas fa-pause"></i> 暂停</button>
-                    <button class="toolbar-btn" data-action="clear" style="color:#FF3B30;"><i class="fas fa-trash-alt"></i> 清空</button>
-                </div>
-                <div class="dag-canvas" id="dag-canvas">
-                    <svg id="dag-svg"></svg>
-                    <div class="canvas-placeholder">
-                        <i class="fas fa-project-diagram"></i>
-                        <h3>拖动技能卡片到此处构建流水线</h3>
-                    </div>
-                </div>
-            </div>
-        </section>
-
-        <!-- Settings Panel -->
-        <section id="panel-settings">
-            <div class="panel-body" id="settings-body">
-                <div class="settings-layout">
-                    <div class="settings-sidebar">
-                        <div class="settings-nav-item active" data-stab="model">
-                            <div class="settings-icon icon-blue"><i class="fas fa-brain"></i></div>
-                            <span>模型配置</span>
-                        </div>
-                        <div class="settings-nav-item" data-stab="memory">
-                            <div class="settings-icon icon-orange"><i class="fas fa-sd-card"></i></div>
-                            <span>记忆库管理</span>
-                        </div>
-                        <div class="settings-nav-item" data-stab="hardware">
-                            <div class="settings-icon icon-green"><i class="fas fa-microchip"></i></div>
-                            <span>系统与硬件</span>
-                        </div>
-                        <div class="settings-nav-item" data-stab="theme">
-                            <div class="settings-icon icon-purple"><i class="fas fa-palette"></i></div>
-                            <span>界面与主题</span>
-                        </div>
-                        <div class="settings-nav-item" data-stab="wake">
-                            <div class="settings-icon icon-green"><i class="fas fa-hand-point-up"></i></div>
-                            <span>唤醒与灵动岛</span>
-                        </div>
-                    </div>
-                    <div class="settings-content-area">
-                        <div class="settings-tab active" id="stab-model">
-                            <h3>大模型提供商配置</h3>
-                            <div class="settings-group-card">
-                                <div class="settings-row"><span class="row-label">提供商类型</span><select class="apple-select" id="s-provider"><option value="deepseek">DeepSeek</option><option value="openai">OpenAI</option><option value="local">Local Ollama</option></select></div>
-                                <div class="settings-row"><span class="row-label">模型名称</span><input type="text" class="apple-input" id="s-model" value="deepseek-chat"></div>
-                                <div class="settings-row"><span class="row-label">API 密钥</span><input type="password" class="apple-input" id="s-apikey" placeholder="输入 API Key"></div>
-                                <div class="settings-row"><span class="row-label">API 基础路径</span><input type="text" class="apple-input" id="s-baseurl" value="https://api.deepseek.com"></div>
-                            </div>
-                            <button class="apple-btn-primary" id="save-model-btn">保存配置</button>
-                        </div>
-                        <div class="settings-tab" id="stab-memory">
-                            <h3>多级降级记忆库</h3>
-                            <div class="settings-group-card">
-                                <div class="settings-row"><span class="row-label">向量数据库选型</span><select class="apple-select" id="s-memorydb"><option value="zvec">Zvec (本地嵌入式)</option><option value="redis">Redis (云端高性能)</option><option value="sqlite">SQLite (全文检索)</option></select></div>
-                                <div class="settings-row"><span class="row-label">做梦引擎自动精简</span><label class="switch"><input type="checkbox" id="s-dream" checked><span class="slider round"></span></label></div>
-                            </div>
-                            <button class="apple-btn-primary">更新记忆库配置</button>
-                        </div>
-                        <div class="settings-tab" id="stab-hardware">
-                            <h3>系统与硬件 HAL</h3>
-                            <div class="settings-group-card">
-                                <div class="settings-row"><span class="row-label">HAL 连接状态</span><span class="status-badge connected"><span class="status-dot green active"></span> 已连接</span></div>
-                                <div class="settings-row"><span class="row-label">USB 屏幕联动</span><span class="text-muted">就绪 (128x64 OLED)</span></div>
-                                <div class="settings-row"><span class="row-label">环境传感器</span><span class="mono-text">26.4C / 54% RH</span></div>
-                            </div>
-                            <button class="apple-btn-primary">运行硬件回路测试</button>
-                        </div>
-                        <div class="settings-tab" id="stab-theme">
-                            <h3>界面与主题设置</h3>
-                            <div class="settings-group-card">
-                                <div class="settings-row"><span class="row-label">深浅色模式</span><label class="switch"><input type="checkbox" id="s-theme-toggle" checked><span class="slider round"></span></label></div>
-                                <div class="settings-row"><span class="row-label">高斯模糊度</span><input type="range" id="s-blur" min="10" max="50" value="30"></div>
-                                <div class="settings-row"><span class="row-label">背景热力图</span><label class="switch"><input type="checkbox" id="s-heatmap" checked><span class="slider round"></span></label></div>
-                                <div class="settings-row"><span class="row-label">界面模式</span><select class="apple-select" id="s-interface"><option value="desktop">电脑端</option><option value="mobile">手机端</option></select></div>
-                                <div class="settings-row"><span class="row-label">字体大小</span><select class="apple-select" id="s-fontsize"><option value="13px">13px 小</option><option value="14px">14px 标准</option><option value="15px" selected>15px 舒适</option><option value="16px">16px 大气</option></select></div>
-                            </div>
-                        </div>
-                        <div class="settings-tab" id="stab-wake">
-                            <h3>灵动岛</h3>
-                            <div class="settings-group-card">
-                                <div class="settings-row"><span class="row-label">启用灵动岛</span><label class="switch"><input type="checkbox" id="s-island-enabled" checked><span class="slider round"></span></label></div>
-                                <div class="settings-row"><span class="row-label">聊天回复通知</span><label class="switch"><input type="checkbox" id="s-island-chat" checked><span class="slider round"></span></label></div>
-                                <div class="settings-row"><span class="row-label">技能执行状态</span><label class="switch"><input type="checkbox" id="s-island-skill" checked><span class="slider round"></span></label></div>
-                                <div class="settings-row"><span class="row-label">音乐播放控制</span><label class="switch"><input type="checkbox" id="s-island-music" checked><span class="slider round"></span></label></div>
-                                <div class="settings-row"><span class="row-label">专注模式计时</span><label class="switch"><input type="checkbox" id="s-island-focus" checked><span class="slider round"></span></label></div>
-                                <div class="settings-row"><span class="row-label">终端/代码执行</span><label class="switch"><input type="checkbox" id="s-island-terminal" checked><span class="slider round"></span></label></div>
-                                <div class="settings-row"><span class="row-label">自动隐藏延迟</span><select class="apple-select" id="s-island-delay"><option value="2000">2 秒</option><option value="3000" selected>3 秒</option><option value="5000">5 秒</option><option value="0">不自动隐藏</option></select></div>
-                            </div>
-                            <h3 style="margin-top:20px;">唤醒方式</h3>
-                            <div class="settings-group-card">
-                                <div class="settings-row"><span class="row-label"><i class="fas fa-headphones" style="margin-right:6px;color:#5AC8FA;"></i>蓝牙耳机按键</span><label class="switch"><input type="checkbox" id="s-wake-headset" checked><span class="slider round"></span></label></div>
-                                <div class="settings-row"><span class="row-label"><i class="fas fa-arrows-left-right" style="margin-right:6px;color:#34C759;"></i>屏幕边缘滑动</span><label class="switch"><input type="checkbox" id="s-wake-edge" checked><span class="slider round"></span></label></div>
-                                <div class="settings-row"><span class="row-label"><i class="fas fa-power-off" style="margin-right:6px;color:#FF9500;"></i>电源键双击</span><label class="switch"><input type="checkbox" id="s-wake-power" checked><span class="slider round"></span></label></div>
-                                <div class="settings-row" id="s-wake-accessibility-status" style="display:none;"><span class="row-label" style="color:#FF9500;font-size:0.8rem;"><i class="fas fa-exclamation-triangle" style="margin-right:6px;"></i>无障碍服务未开启</span><button class="apple-btn-secondary small" id="s-wake-open-accessibility">去开启</button></div>
-                            </div>
-                            <h3 style="margin-top:20px;">耳机操作自定义</h3>
-                            <div class="settings-group-card">
-                                <div class="settings-row"><span class="row-label">单击耳机键</span><select class="apple-select" id="s-wake-headset-single"><option value="wake">唤醒 Butler</option><option value="play_pause">播放/暂停音乐</option><option value="none">不响应</option></select></div>
-                                <div class="settings-row"><span class="row-label">双击耳机键</span><select class="apple-select" id="s-wake-headset-double"><option value="wake">唤醒 Butler</option><option value="next">下一首</option><option value="none">不响应</option></select></div>
-                                <div class="settings-row"><span class="row-label">三击耳机键</span><select class="apple-select" id="s-wake-headset-triple"><option value="wake">唤醒 Butler</option><option value="prev">上一首</option><option value="none">不响应</option></select></div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </section>
-
-        <!-- Time Machine Panel -->
-        <section id="panel-timemachine">
-            <div class="panel-body" id="timemachine-body">
-                <div class="metrics-grid" id="tm-metrics"></div>
-                <div class="history-log" id="tm-logs"></div>
-                <div class="tm-slider-bar">
-                    <input type="range" id="tm-slider" min="0" max="100" value="100">
-                    <div class="tm-time-label">现在</div>
-                </div>
-            </div>
-        </section>
-
-        <!-- Tasks Board Panel -->
-        <section id="panel-tasks">
-            <div class="panel-body" id="tasks-body">
-                <form class="task-add-bar" id="task-add-form">
-                    <input type="text" id="task-input" placeholder="添加新任务..." required>
-                    <button type="submit" class="apple-btn-primary small"><i class="fas fa-plus"></i></button>
-                </form>
-                <div class="task-board">
-                    <div class="task-column"><div class="task-column-header task-col-pending"><span>待办</span></div><div class="task-column-body" id="task-col-pending"></div></div>
-                    <div class="task-column"><div class="task-column-header task-col-running"><span>进行中</span></div><div class="task-column-body" id="task-col-running"></div></div>
-                    <div class="task-column"><div class="task-column-header task-col-completed"><span>已完成</span></div><div class="task-column-body" id="task-col-completed"></div></div>
-                    <div class="task-column"><div class="task-column-header task-col-failed"><span>失败</span></div><div class="task-column-body" id="task-col-failed"></div></div>
-                </div>
-            </div>
-        </section>
-
-        <!-- Vault Panel -->
-        <section id="panel-vault">
-            <div class="panel-body" id="vault-body">
-                <form class="vault-add-form" id="vault-add-form">
-                    <div class="vault-form-row">
-                        <input type="text" id="vault-key" placeholder="密钥名称" required>
-                        <select id="vault-category"><option value="api">API Key</option><option value="token">Token</option><option value="password">密码</option><option value="certificate">证书</option><option value="general">通用</option></select>
-                    </div>
-                    <input type="text" id="vault-value" placeholder="密钥值" required>
-                    <button type="submit" class="apple-btn-primary small"><i class="fas fa-lock"></i> 保存密钥</button>
-                </form>
-                <div class="vault-list" id="vault-list"></div>
-            </div>
-        </section>
-
-        <!-- Focus Mode Panel -->
-        <section id="panel-focus">
-            <div class="panel-body" id="focus-body">
-                <div class="focus-timer">
-                    <div class="focus-display-large" id="focus-display">25:00</div>
-                    <select class="apple-select" id="focus-duration">
-                        <option value="15">15 分钟</option><option value="25" selected>25 分钟</option><option value="45">45 分钟</option><option value="60">60 分钟</option><option value="90">90 分钟</option>
-                    </select>
-                    <div class="focus-controls">
-                        <button class="apple-btn-primary" id="focus-start-btn"><i class="fas fa-play"></i> 开始专注</button>
-                        <button class="apple-btn-secondary" id="focus-stop-btn"><i class="fas fa-stop"></i> 停止</button>
-                    </div>
-                </div>
-            </div>
-        </section>
-
-        <!-- Cluster Panel -->
-        <section id="panel-cluster">
-            <div class="panel-body" id="cluster-body">
-                <div class="cluster-header-actions">
-                    <span class="cluster-health-indicator" id="cluster-health-indicator">--</span>
-                    <button class="icon-btn-small" id="cluster-refresh-btn" title="刷新"><i class="fas fa-sync-alt"></i></button>
-                    <button class="icon-btn-small" id="cluster-health-btn" title="健康检查"><i class="fas fa-heartbeat"></i></button>
-                </div>
-                <div class="cluster-nodes" id="cluster-nodes"></div>
-            </div>
-        </section>
-
-        <!-- Cron Scheduler Panel -->
-        <section id="panel-cron">
-            <div class="panel-body" id="cron-body">
-                <form class="cron-add-form" id="cron-add-form">
-                    <div class="cron-form-row">
-                        <input type="text" id="cron-name" placeholder="任务名称" required>
-                        <input type="text" id="cron-expr" placeholder="Cron 表达式 (0 8 * * *)" required>
-                    </div>
-                    <input type="text" id="cron-action" placeholder="执行动作 (如 skill:sys_cleaner:run)" required>
-                    <button type="submit" class="apple-btn-primary small"><i class="fas fa-plus"></i> 添加定时任务</button>
-                </form>
-                <div class="cron-jobs" id="cron-jobs"></div>
-            </div>
-        </section>
-
-        <!-- Code Interpreter Panel -->
-        <section id="panel-code">
-            <div class="panel-body" id="code-body">
-                <div class="code-header-actions">
-                    <select class="apple-select small" id="code-lang"><option value="python">Python</option><option value="javascript">JavaScript</option><option value="shell">Shell</option></select>
-                    <button class="apple-btn-primary small" id="code-run-btn"><i class="fas fa-play"></i> 运行</button>
-                </div>
-                <div class="code-editor-wrap">
-                    <textarea class="code-editor" id="code-editor" placeholder="// 在此输入代码..." spellcheck="false"></textarea>
-                </div>
-                <div class="code-output" id="code-output"></div>
-            </div>
-        </section>
-
-        <!-- User Profile Panel -->
-        <section id="panel-profile">
-            <div class="panel-body" id="profile-body">
-                <div class="profile-header-actions">
-                    <button class="apple-btn-primary small" id="profile-save-btn"><i class="fas fa-save"></i> 保存</button>
-                </div>
-                <div class="profile-habits" id="profile-habits"></div>
-            </div>
-        </section>
-
-        <!-- Converter Panel -->
-        <section id="panel-converter">
-            <div class="panel-body" id="converter-body">
-                <form class="converter-form" id="converter-form">
-                    <div class="converter-row">
-                        <input type="text" id="converter-file" placeholder="文件路径">
-                        <select class="apple-select" id="converter-format">
-                            <option value="md">Markdown</option><option value="pdf">PDF</option><option value="docx">Word</option><option value="txt">纯文本</option>
-                        </select>
-                    </div>
-                    <div class="converter-actions">
-                        <button type="submit" class="apple-btn-primary small"><i class="fas fa-exchange-alt"></i> 转换</button>
-                        <button type="button" class="apple-btn-secondary small" id="converter-archive-btn"><i class="fas fa-file-zipper"></i> 查看压缩包</button>
-                    </div>
-                </form>
-                <div class="converter-output" id="converter-output">选择文件后点击转换</div>
-            </div>
-        </section>
-
-        <!-- Media Center Panel -->
-        <section id="panel-media">
-            <div class="panel-body" id="media-body">
-                <div class="media-controls">
-                    <button class="icon-btn-small" id="media-prev-btn" title="上一首"><i class="fas fa-backward-step"></i></button>
-                    <button class="apple-btn-primary small" id="media-play-btn"><i class="fas fa-play"></i></button>
-                    <button class="icon-btn-small" id="media-next-btn" title="下一首"><i class="fas fa-forward-step"></i></button>
-                </div>
-                <canvas id="media-spectrum" style="width:100%;height:60px;border-radius:8px;margin-bottom:12px;"></canvas>
-                <div class="media-two-col">
-                    <div class="media-col"><h4>媒体库</h4><div id="media-library" class="media-scroll-area"></div></div>
-                    <div class="media-col"><h4>播放列表</h4><div id="media-playlist" class="media-scroll-area"></div></div>
-                </div>
-            </div>
-        </section>
-
-        <!-- Memory Center Panel -->
-        <section id="panel-memory">
-            <div class="panel-body" id="memory-body">
-                <form class="memory-search-form" id="memory-search-form">
-                    <input type="text" id="memory-search-input" placeholder="搜索记忆...">
-                    <button type="submit" class="apple-btn-primary small"><i class="fas fa-search"></i></button>
-                </form>
-                <div class="memory-grid">
-                    <div class="memory-section"><div class="memory-section-header"><span><i class="fas fa-search"></i> 搜索结果</span></div><div id="memory-search-results" class="memory-section-body"></div></div>
-                    <div class="memory-section"><div class="memory-section-header"><span><i class="fas fa-clock-rotate-left"></i> 待复习</span><button class="icon-btn-small" id="memory-review-btn" title="标记已复习"><i class="fas fa-check"></i></button></div><div id="memory-due-reviews" class="memory-section-body"></div></div>
-                    <div class="memory-section"><div class="memory-section-header"><span><i class="fas fa-moon"></i> 做梦引擎</span></div><div id="memory-dream-status" class="memory-section-body"></div></div>
-                </div>
-            </div>
-        </section>
-
-        <!-- Notification Center Panel -->
-        <section id="panel-notify">
-            <div class="panel-body" id="notify-body">
-                <div class="notify-grid">
-                    <div class="notify-section"><div class="notify-section-header"><span><i class="fas fa-inbox"></i> 通知</span></div><div id="notify-list" class="notify-section-body"></div></div>
-                    <div class="notify-section"><div class="notify-section-header"><span><i class="fas fa-lightbulb"></i> 主动建议</span></div><div id="notify-proactive" class="notify-section-body"></div></div>
-                    <div class="notify-section"><div class="notify-section-header"><span><i class="fas fa-heart-pulse"></i> 自愈状态</span></div><div id="notify-healing" class="notify-section-body"></div></div>
-                </div>
-            </div>
-        </section>
-
-        <!-- Security Toolkit Panel -->
-        <section id="panel-security">
-            <div class="panel-body" id="security-body">
-                <form class="security-scan-form" id="security-scan-form">
-                    <div class="security-scan-row">
-                        <input type="text" id="security-scan-target" placeholder="扫描目标 (IP/域名)">
-                        <input type="text" id="security-scan-ports" placeholder="端口范围 (如 1-1024)">
-                    </div>
-                    <button type="submit" class="apple-btn-primary small"><i class="fas fa-radar"></i> 端口扫描</button>
-                </form>
-                <div id="security-scan-results" class="security-results-area"></div>
-                <div class="security-tools-grid">
-                    <div class="security-tool-card">
-                        <h4>网络工具</h4>
-                        <div class="security-net-row"><input type="text" id="security-url-input" placeholder="URL 检测"><button class="apple-btn-secondary small" id="security-url-check">检测</button></div>
-                        <div class="security-net-row"><input type="text" id="security-ping-input" placeholder="Ping 主机"><button class="apple-btn-secondary small" id="security-ping-btn">Ping</button></div>
-                        <div id="security-net-log" class="security-log"></div>
-                    </div>
-                    <div class="security-tool-card">
-                        <h4>同步与备份</h4>
-                        <div class="security-sync-row"><span id="security-sync-status" class="sync-indicator idle">空闲</span><button class="apple-btn-secondary small" id="security-sync-btn">启动局域网同步</button></div>
-                        <div class="security-backup-row">
-                            <button class="apple-btn-secondary small" id="security-backup-export"><i class="fas fa-download"></i> 导出配置备份</button>
-                            <button class="apple-btn-secondary small" id="security-backup-import"><i class="fas fa-upload"></i> 导入备份</button>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </section>
-
-        <!-- Extensions Panel -->
-        <section id="panel-extensions">
-            <div class="panel-body" id="extensions-body">
-                <div class="ext-header-actions">
-                    <button class="apple-btn-primary small" id="ext-scan-btn"><i class="fas fa-magnifying-glass"></i> 重新扫描</button>
-                </div>
-                <div id="ext-plugins"></div>
-                <div class="ext-two-col">
-                    <div class="ext-col"><h4>团队智能体</h4><div id="ext-team" class="ext-scroll-area"></div></div>
-                    <div class="ext-col"><h4>远程 Runner</h4><div id="ext-runners" class="ext-scroll-area"></div></div>
-                </div>
-            </div>
-        </section>
-
-        <!-- Terminal Overlay -->
-        <div class="overlay-panel hidden" id="terminal-overlay">
-            <div class="terminal-body" id="terminal-body">
-                <div class="terminal-output" id="terminal-output"></div>
-                <div class="terminal-input-line">
-                    <span class="terminal-prompt">$</span>
-                    <input type="text" class="terminal-input" id="terminal-input" placeholder="输入命令...">
-                </div>
-            </div>
+    <!-- ==================== CHAT ==================== -->
+    <div class="phone-wrap">
+      <div class="phone-tag"><span class="dot p"></span>Chat</div>
+      <div class="iphone">
+        <div class="island"></div>
+        <div class="sb">
+          <span>9:41</span>
+          <div class="sb-r">
+            <svg viewBox="0 0 24 24"><path d="M1 9l2 2c4.97-4.97 13.03-4.97 18 0l2-2C16.93 2.93 7.08 2.93 1 9zm8 8l3 3 3-3c-1.65-1.66-4.34-1.66-6 0zm-4-4l2 2c2.76-2.76 7.24-2.76 10 0l2-2C15.14 9.14 8.87 9.14 5 13z"/></svg>
+            <svg viewBox="0 0 24 24"><path d="M15.67 4H14V2h-4v2H8.33C7.6 4 7 4.6 7 5.33v15.33C7 21.4 7.6 22 8.33 22h7.33c.74 0 1.34-.6 1.34-1.33V5.33C17 4.6 16.4 4 15.67 4z"/></svg>
+          </div>
         </div>
 
-        <!-- Memos Overlay -->
-        <div class="overlay-panel hidden" id="memos-overlay">
-            <div class="memos-body" id="memos-body">
-                <div class="memos-toolbar">
-                    <div class="memos-search"><i class="fas fa-search"></i><input type="text" placeholder="搜索备忘录内容或 #标签..."></div>
-                    <button class="apple-btn-primary small" id="new-memo-btn"><i class="fas fa-plus"></i> 新建备忘</button>
-                </div>
-                <div class="memos-list" id="memos-list"></div>
+        <div class="app">
+          <div class="screen on">
+            <div class="nav-bar">
+              <span class="nav-back">‹</span>
+              <div class="nav-title">
+                Butler AI
+                <span class="nav-sub">在线</span>
+              </div>
+              <span class="nav-right">⋯</span>
             </div>
+
+            <div class="msgs">
+              <div class="msg him">
+                你好！我是 Butler，你的智能助手。有什么可以帮你的吗？
+                <div class="msg-t">9:00</div>
+              </div>
+              <div class="msg me">
+                帮我分析一下当前系统的运行状态
+                <div class="msg-t">9:01</div>
+              </div>
+              <div class="msg him">
+                正在执行系统审计，以下是核心指标：
+                <code>CPU:  67%  ████████░░  正常
+MEM:  4.2G  █████░░░░░  52%
+DISK: 128G  █████░░░░░  50%
+NET:  ↑2.4  ↓12.8 MB/s</code>
+                所有指标均在安全范围内 ✅
+                <div class="msg-t">9:01</div>
+              </div>
+              <div class="msg me">
+                帮我写一个 Python 脚本来监控温度
+                <div class="msg-t">9:05</div>
+              </div>
+              <div class="msg him">
+                这是一个简洁的温度监控脚本：
+                <code>import psutil, time
+
+def monitor():
+    while True:
+        for k, v in psutil\
+          .sensors_temperatures().items():
+            for e in v:
+                print(f"{e.label}: "
+                      f"{e.current}°C")
+        time.sleep(5)</code>
+                已保存到技能库 🔥
+                <div class="msg-t">9:06</div>
+              </div>
+              <div class="msg me">
+                晚上有什么日程安排？
+                <div class="msg-t">9:10</div>
+              </div>
+              <div class="typing">
+                <span></span><span></span><span></span>
+              </div>
+            </div>
+
+            <div class="chat-bar">
+              <div class="chat-field">
+                <div class="chat-plus">+</div>
+                <input placeholder="给 Butler 发消息" readonly>
+              </div>
+              <div class="send-circle">
+                <svg viewBox="0 0 24 24"><path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/></svg>
+              </div>
+            </div>
+          </div>
         </div>
+      </div>
     </div>
 
-    <!-- Dynamic Island (hidden by default, shown via JS) -->
-    <div id="dynamic-island" class="dynamic-island" style="display:none">
-        <span class="island-pulse"></span>
-        <span class="island-text">Butler</span>
+    <!-- ==================== SKILLS ==================== -->
+    <div class="phone-wrap">
+      <div class="phone-tag"><span class="dot g"></span>Skills</div>
+      <div class="iphone">
+        <div class="island"></div>
+        <div class="sb">
+          <span>9:41</span>
+          <div class="sb-r">
+            <svg viewBox="0 0 24 24"><path d="M1 9l2 2c4.97-4.97 13.03-4.97 18 0l2-2C16.93 2.93 7.08 2.93 1 9zm8 8l3 3 3-3c-1.65-1.66-4.34-1.66-6 0zm-4-4l2 2c2.76-2.76 7.24-2.76 10 0l2-2C15.14 9.14 8.87 9.14 5 13z"/></svg>
+            <svg viewBox="0 0 24 24"><path d="M15.67 4H14V2h-4v2H8.33C7.6 4 7 4.6 7 5.33v15.33C7 21.4 7.6 22 8.33 22h7.33c.74 0 1.34-.6 1.34-1.33V5.33C17 4.6 16.4 4 15.67 4z"/></svg>
+          </div>
+        </div>
+
+        <div class="app">
+          <div class="screen on">
+            <div class="nav-bar">
+              <div class="nav-title">技能中心</div>
+            </div>
+
+            <div class="scroll">
+              <div class="search-pill">
+                <svg viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/></svg>
+                <input placeholder="搜索技能" readonly>
+              </div>
+
+              <div class="sec-title">系统技能</div>
+
+              <div class="skill-list">
+                <div class="s-card">
+                  <div class="s-icon b">🔍</div>
+                  <div class="s-body">
+                    <div class="s-name">系统审计</div>
+                    <div class="s-desc">全面安全扫描与风险评估</div>
+                  </div>
+                  <div class="s-go"><svg viewBox="0 0 24 24"><path d="M8.59 16.59L13.17 12 8.59 7.41 10 6l6 6-6 6z"/></svg></div>
+                </div>
+                <div class="s-card">
+                  <div class="s-icon p">📊</div>
+                  <div class="s-body">
+                    <div class="s-name">数据分析</div>
+                    <div class="s-desc">智能数据可视化与报告生成</div>
+                  </div>
+                  <div class="s-go"><svg viewBox="0 0 24 24"><path d="M8.59 16.59L13.17 12 8.59 7.41 10 6l6 6-6 6z"/></svg></div>
+                </div>
+                <div class="s-card">
+                  <div class="s-icon g">💻</div>
+                  <div class="s-body">
+                    <div class="s-name">代码审查</div>
+                    <div class="s-desc">代码质量分析与安全检测</div>
+                  </div>
+                  <div class="s-go"><svg viewBox="0 0 24 24"><path d="M8.59 16.59L13.17 12 8.59 7.41 10 6l6 6-6 6z"/></svg></div>
+                </div>
+                <div class="s-card">
+                  <div class="s-icon o">🌐</div>
+                  <div class="s-body">
+                    <div class="s-name">网页抓取</div>
+                    <div class="s-desc">智能内容提取与结构化解析</div>
+                  </div>
+                  <div class="s-go"><svg viewBox="0 0 24 24"><path d="M8.59 16.59L13.17 12 8.59 7.41 10 6l6 6-6 6z"/></svg></div>
+                </div>
+                <div class="s-card">
+                  <div class="s-icon r">🛡️</div>
+                  <div class="s-body">
+                    <div class="s-name">安全加固</div>
+                    <div class="s-desc">系统防护配置与漏洞修复</div>
+                  </div>
+                  <div class="s-go"><svg viewBox="0 0 24 24"><path d="M8.59 16.59L13.17 12 8.59 7.41 10 6l6 6-6 6z"/></svg></div>
+                </div>
+                <div class="s-card">
+                  <div class="s-icon t">📁</div>
+                  <div class="s-body">
+                    <div class="s-name">文件管理</div>
+                    <div class="s-desc">智能文件整理与归档</div>
+                  </div>
+                  <div class="s-go"><svg viewBox="0 0 24 24"><path d="M8.59 16.59L13.17 12 8.59 7.41 10 6l6 6-6 6z"/></svg></div>
+                </div>
+                <div class="s-card">
+                  <div class="s-icon b">🎨</div>
+                  <div class="s-body">
+                    <div class="s-name">前端生成</div>
+                    <div class="s-desc">快速原型设计与页面构建</div>
+                  </div>
+                  <div class="s-go"><svg viewBox="0 0 24 24"><path d="M8.59 16.59L13.17 12 8.59 7.41 10 6l6 6-6 6z"/></svg></div>
+                </div>
+                <div class="s-card">
+                  <div class="s-icon p">📝</div>
+                  <div class="s-body">
+                    <div class="s-name">文档生成</div>
+                    <div class="s-desc">自动编写技术文档与报告</div>
+                  </div>
+                  <div class="s-go"><svg viewBox="0 0 24 24"><path d="M8.59 16.59L13.17 12 8.59 7.41 10 6l6 6-6 6z"/></svg></div>
+                </div>
+                <div class="s-card">
+                  <div class="s-icon o">⚡</div>
+                  <div class="s-body">
+                    <div class="s-name">性能优化</div>
+                    <div class="s-desc">瓶颈分析与系统调优</div>
+                  </div>
+                  <div class="s-go"><svg viewBox="0 0 24 24"><path d="M8.59 16.59L13.17 12 8.59 7.41 10 6l6 6-6 6z"/></svg></div>
+                </div>
+              </div>
+              <div style="height:100px"></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="tab-bar">
+          <div class="tab">
+            <svg viewBox="0 0 24 24"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg>
+            <span>首页</span>
+          </div>
+          <div class="tab">
+            <svg viewBox="0 0 24 24"><path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm0 14H6l-2 2V4h16v12z"/></svg>
+            <span>对话</span>
+          </div>
+          <div class="tab on">
+            <svg viewBox="0 0 24 24"><path d="M13 2.05v2.02c3.95.49 7 3.85 7 7.93 0 3.21-1.92 6-4.72 7.28L13 17v5h5l-1.22-1.22C19.91 18.81 22 15.67 22 12c0-5.18-3.95-9.45-9-9.95zM11 2.07C7.32 2.56 4.2 5.04 3.08 8.45L1 10v5h5l-1.84-1.84C5.68 12.42 7.39 12 9 12c.35 0 .69.03 1.02.08L11 13v-2c0-.17.01-.33.02-.5L8.22 7.6C8.08 6.59 8 5.55 8 4.5c0-.17 0-.33.01-.5L5.1 6.94C4.43 8.09 4 9.45 4 10.91l-1.32-1.32C3.67 7.35 5.12 5.26 7.11 3.84L11 2.07z"/></svg>
+            <span>技能</span>
+          </div>
+          <div class="tab">
+            <svg viewBox="0 0 24 24"><path d="M9.4 16.6L4.8 12l4.6-4.6L8 6l-6 6 6 6 1.4-1.4zm5.2 0l4.6-4.6-4.6-4.6L16 6l6 6-6 6-1.4-1.4z"/></svg>
+            <span>终端</span>
+          </div>
+          <div class="tab">
+            <svg viewBox="0 0 24 24"><path d="M19.14 12.94c.04-.3.06-.61.06-.94 0-.32-.02-.64-.07-.94l2.03-1.58c.18-.14.23-.41.12-.61l-1.92-3.32c-.12-.22-.37-.29-.59-.22l-2.39.96c-.5-.38-1.03-.7-1.62-.94l-.36-2.54c-.04-.24-.24-.41-.48-.41h-3.84c-.24 0-.43.17-.47.41l-.36 2.54c-.59.24-1.13.57-1.62.94l-2.39-.96c-.22-.08-.47 0-.59.22L2.74 8.87c-.12.21-.08.47.12.61l2.03 1.58c-.05.3-.07.62-.07.94s.02.64.07.94l-2.03 1.58c-.18.14-.23.41-.12.61l1.92 3.32c.12.22.37.29.59.22l2.39-.96c.5.38 1.03.7 1.62.94l.36 2.54c.05.24.24.41.48.41h3.84c.24 0 .44-.17.47-.41l.36-2.54c.59-.24 1.13-.56 1.62-.94l2.39.96c.22.08.47 0 .59-.22l1.92-3.32c.12-.22.07-.47-.12-.61l-2.01-1.58zM12 15.6c-1.98 0-3.6-1.62-3.6-3.6s1.62-3.6 3.6-3.6 3.6 1.62 3.6 3.6-1.62 3.6-3.6 3.6z"/></svg>
+            <span>设置</span>
+          </div>
+        </div>
+      </div>
     </div>
 
-    <!-- Notification Container -->
-    <div class="notifier-container" id="notifier-container"></div>
+    <!-- ==================== SETTINGS ==================== -->
+    <div class="phone-wrap">
+      <div class="phone-tag"><span class="dot o"></span>Settings</div>
+      <div class="iphone">
+        <div class="island"></div>
+        <div class="sb">
+          <span>9:41</span>
+          <div class="sb-r">
+            <svg viewBox="0 0 24 24"><path d="M1 9l2 2c4.97-4.97 13.03-4.97 18 0l2-2C16.93 2.93 7.08 2.93 1 9zm8 8l3 3 3-3c-1.65-1.66-4.34-1.66-6 0zm-4-4l2 2c2.76-2.76 7.24-2.76 10 0l2-2C15.14 9.14 8.87 9.14 5 13z"/></svg>
+            <svg viewBox="0 0 24 24"><path d="M15.67 4H14V2h-4v2H8.33C7.6 4 7 4.6 7 5.33v15.33C7 21.4 7.6 22 8.33 22h7.33c.74 0 1.34-.6 1.34-1.33V5.33C17 4.6 16.4 4 15.67 4z"/></svg>
+          </div>
+        </div>
 
-    <!-- Loading Overlay -->
-    <div class="loading-overlay hidden" id="loading-overlay">
-        <div class="loading-spinner"></div>
-        <span class="loading-text">加载中...</span>
+        <div class="app">
+          <div class="screen on">
+            <div class="scroll">
+              <div style="padding:16px 24px 0">
+                <div style="font-size:1.8rem;font-weight:700;letter-spacing:-0.03em">设置</div>
+              </div>
+
+              <!-- Profile -->
+              <div class="profile-card">
+                <div class="profile-avatar">🤖</div>
+                <div class="profile-info">
+                  <div class="profile-name">Butler AI</div>
+                  <div class="profile-sub">v1.0.0 · Chaquopy Runtime</div>
+                  <div class="profile-badge">在线</div>
+                </div>
+              </div>
+
+              <!-- Model -->
+              <div class="s-section">
+                <div class="s-sec-title">模型配置</div>
+                <div class="s-group">
+                  <div class="s-item">
+                    <div class="si-icon p">🧠</div>
+                    <div class="si-body">
+                      <div class="si-name">AI 模型</div>
+                    </div>
+                    <div class="si-val">GPT-4o</div>
+                    <div class="si-arrow">›</div>
+                  </div>
+                  <div class="s-item">
+                    <div class="si-icon b">🔗</div>
+                    <div class="si-body">
+                      <div class="si-name">API 端点</div>
+                    </div>
+                    <div class="si-val">localhost:8080</div>
+                    <div class="si-arrow">›</div>
+                  </div>
+                  <div class="s-item">
+                    <div class="si-icon g">🌡️</div>
+                    <div class="si-body">
+                      <div class="si-name">Temperature</div>
+                    </div>
+                    <div class="si-val">0.7</div>
+                    <div class="si-arrow">›</div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Appearance -->
+              <div class="s-section">
+                <div class="s-sec-title">外观</div>
+                <div class="s-group">
+                  <div class="s-item">
+                    <div class="si-icon p">🌙</div>
+                    <div class="si-body">
+                      <div class="si-name">深色模式</div>
+                    </div>
+                    <div class="ios-toggle on"></div>
+                  </div>
+                  <div class="s-item">
+                    <div class="si-icon b">🔤</div>
+                    <div class="si-body">
+                      <div class="si-name">字体大小</div>
+                    </div>
+                    <div class="si-val">标准</div>
+                    <div class="si-arrow">›</div>
+                  </div>
+                  <div class="s-item">
+                    <div class="si-icon o">✨</div>
+                    <div class="si-body">
+                      <div class="si-name">模糊效果</div>
+                    </div>
+                    <div class="si-val">30px</div>
+                    <div class="si-arrow">›</div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- System -->
+              <div class="s-section">
+                <div class="s-sec-title">系统</div>
+                <div class="s-group">
+                  <div class="s-item">
+                    <div class="si-icon g">📡</div>
+                    <div class="si-body">
+                      <div class="si-name">WebSocket</div>
+                    </div>
+                    <div style="font-size:0.72rem;color:var(--green);font-weight:500">已连接</div>
+                  </div>
+                  <div class="s-item">
+                    <div class="si-icon o">🔔</div>
+                    <div class="si-body">
+                      <div class="si-name">通知</div>
+                    </div>
+                    <div class="ios-toggle on"></div>
+                  </div>
+                  <div class="s-item">
+                    <div class="si-icon r">🗑️</div>
+                    <div class="si-body">
+                      <div class="si-name">清除缓存</div>
+                      <div class="si-sub">当前占用 42MB</div>
+                    </div>
+                    <div class="si-arrow">›</div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- About -->
+              <div style="text-align:center;padding:8px 0 120px">
+                <div style="font-size:0.65rem;color:var(--text3);line-height:1.6">
+                  Butler AI · Capacitor + Chaquopy<br>
+                  © 2026 HelloEveryboby
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="tab-bar">
+          <div class="tab">
+            <svg viewBox="0 0 24 24"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg>
+            <span>首页</span>
+          </div>
+          <div class="tab">
+            <svg viewBox="0 0 24 24"><path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm0 14H6l-2 2V4h16v12z"/></svg>
+            <span>对话</span>
+          </div>
+          <div class="tab">
+            <svg viewBox="0 0 24 24"><path d="M13 2.05v2.02c3.95.49 7 3.85 7 7.93 0 3.21-1.92 6-4.72 7.28L13 17v5h5l-1.22-1.22C19.91 18.81 22 15.67 22 12c0-5.18-3.95-9.45-9-9.95zM11 2.07C7.32 2.56 4.2 5.04 3.08 8.45L1 10v5h5l-1.84-1.84C5.68 12.42 7.39 12 9 12c.35 0 .69.03 1.02.08L11 13v-2c0-.17.01-.33.02-.5L8.22 7.6C8.08 6.59 8 5.55 8 4.5c0-.17 0-.33.01-.5L5.1 6.94C4.43 8.09 4 9.45 4 10.91l-1.32-1.32C3.67 7.35 5.12 5.26 7.11 3.84L11 2.07z"/></svg>
+            <span>技能</span>
+          </div>
+          <div class="tab">
+            <svg viewBox="0 0 24 24"><path d="M9.4 16.6L4.8 12l4.6-4.6L8 6l-6 6 6 6 1.4-1.4zm5.2 0l4.6-4.6-4.6-4.6L16 6l6 6-6 6-1.4-1.4z"/></svg>
+            <span>终端</span>
+          </div>
+          <div class="tab on">
+            <svg viewBox="0 0 24 24"><path d="M19.14 12.94c.04-.3.06-.61.06-.94 0-.32-.02-.64-.07-.94l2.03-1.58c.18-.14.23-.41.12-.61l-1.92-3.32c-.12-.22-.37-.29-.59-.22l-2.39.96c-.5-.38-1.03-.7-1.62-.94l-.36-2.54c-.04-.24-.24-.41-.48-.41h-3.84c-.24 0-.43.17-.47.41l-.36 2.54c-.59.24-1.13.57-1.62.94l-2.39-.96c-.22-.08-.47 0-.59.22L2.74 8.87c-.12.21-.08.47.12.61l2.03 1.58c-.05.3-.07.62-.07.94s.02.64.07.94l-2.03 1.58c-.18.14-.23.41-.12.61l1.92 3.32c.12.22.37.29.59.22l2.39-.96c.5.38 1.03.7 1.62.94l.36 2.54c.05.24.24.41.48.41h3.84c.24 0 .44-.17.47-.41l.36-2.54c.59-.24 1.13-.56 1.62-.94l2.39.96c.22.08.47 0 .59-.22l1.92-3.32c.12-.22.07-.47-.12-.61l-2.01-1.58zM12 15.6c-1.98 0-3.6-1.62-3.6-3.6s1.62-3.6 3.6-3.6 3.6 1.62 3.6 3.6-1.62 3.6-3.6 3.6z"/></svg>
+            <span>设置</span>
+          </div>
+        </div>
+      </div>
     </div>
 
-    <script type="module" src="/src/main.ts"></script>
+  </div><!-- /phone-grid -->
+
+  <!-- ==================== DESIGN SPECS ==================== -->
+  <div class="specs">
+    <h2>设计规范</h2>
+    <div class="spec-grid">
+
+      <div class="spec-card">
+        <h3>色彩</h3>
+        <p>纯白底色搭配 Apple 标准语义色。不使用渐变背景，不使用深色模式作为默认。颜色仅用于表达含义，不用于装饰。</p>
+        <div class="color-row">
+          <div class="chip"><div class="chip-dot" style="background:#007aff"></div><span class="chip-label">#007aff Blue</span></div>
+          <div class="chip"><div class="chip-dot" style="background:#34c759"></div><span class="chip-label">#34c759 Green</span></div>
+          <div class="chip"><div class="chip-dot" style="background:#ff9f0a"></div><span class="chip-label">#ff9f0a Orange</span></div>
+          <div class="chip"><div class="chip-dot" style="background:#ff3b30"></div><span class="chip-label">#ff3b30 Red</span></div>
+          <div class="chip"><div class="chip-dot" style="background:#af52de"></div><span class="chip-label">#af52de Purple</span></div>
+        </div>
+      </div>
+
+      <div class="spec-card">
+        <h3>排版</h3>
+        <ul>
+          <li>Inter + Noto Sans SC — 系统级字体组合</li>
+          <li>标题使用 700 weight，紧凑字距 -0.03em</li>
+          <li>正文使用 400 weight，行高 1.45–1.65</li>
+          <li>数字使用 tabular-nums 确保对齐</li>
+          <li>标签使用大写 0.62rem + 0.08em 间距</li>
+        </ul>
+      </div>
+
+      <div class="spec-card">
+        <h3>组件</h3>
+        <ul>
+          <li>卡片 — 20px 圆角，subtle shadow，无边框</li>
+          <li>列表项 — 0.5px 分割线，13px 内边距</li>
+          <li>Toggle — iOS 原生样式，51×31px</li>
+          <li>Tab Bar — 毛玻璃背景，blur(20px)</li>
+          <li>Dynamic Island — 126×37px 黑色药丸</li>
+          <li>聊天气泡 — 18px 圆角，蓝色/灰色区分</li>
+        </ul>
+      </div>
+
+      <div class="spec-card">
+        <h3>交互</h3>
+        <ul>
+          <li>按压缩放 0.98 — 轻柔确认感</li>
+          <li>消息气泡从下方滑入（200ms ease）</li>
+          <li>思考指示器三点弹跳（1.4s）</li>
+          <li>Toggle 使用 cubic-bezier 弹性曲线</li>
+          <li>Tab 切换颜色渐变 150ms</li>
+        </ul>
+      </div>
+
+      <div class="spec-card">
+        <h3>导航</h3>
+        <p>底部 5-Tab 标签栏，毛玻璃背景。活动 Tab 蓝色高亮。顶部使用 iOS 风格导航栏：居中标题 + 左右操作按钮。设置页使用分组列表（Grouped List）模式。</p>
+      </div>
+
+      <div class="spec-card">
+        <h3>布局</h3>
+        <ul>
+          <li>安全区：顶部 58px（状态栏），底部 84px（Tab Bar）</li>
+          <li>内容边距：24px 水平内边距</li>
+          <li>卡片间距：12px</li>
+          <li>Dynamic Island 居中，距顶部 12px</li>
+          <li>聊天气泡最大宽度 78%</li>
+        </ul>
+      </div>
+
+    </div>
+  </div>
+
+</div>
+
 </body>
 </html>
