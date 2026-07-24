@@ -51,13 +51,13 @@ export class SecretVault {
         }
 
         list.innerHTML = items.map(item => `
-            <div class="vault-item" data-key="${item.key}">
+            <div class="vault-item" data-key="${escapeHtml(item.key)}">
                 <div class="vault-item-header">
-                    <span class="vault-item-key"><i class="fas fa-key"></i> ${item.key}</span>
-                    <span class="vault-item-category">${item.category || 'general'}</span>
+                    <span class="vault-item-key"><i class="fas fa-key"></i> ${escapeHtml(item.key)}</span>
+                    <span class="vault-item-category">${escapeHtml(item.category || 'general')}</span>
                 </div>
                 <div class="vault-item-value">********</div>
-                <button class="vault-item-delete" data-key="${item.key}" title="删除">
+                <button class="vault-item-delete" data-key="${escapeHtml(item.key)}" title="删除">
                     <i class="fas fa-trash-alt"></i>
                 </button>
             </div>

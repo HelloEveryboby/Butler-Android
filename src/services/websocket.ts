@@ -4,14 +4,28 @@ export class WebSocketService {
     private url: string = 'ws://localhost:8080/ws';
     private reconnectTimer: number | null = null;
     private listeners: Map<string, Set<Function>> = new Map();
+    private authToken: string = '';
 
     init(): void {
-        this.connect();
+        this.fetchToken().then(() => this.connect());
+    }
+
+    private async fetchToken(): Promise<void> {
+        try {
+            const res = await fetch('http://localhost:8080/api/auth/token');
+            const data = await res.json();
+            this.authToken = data.token || '';
+        } catch {
+            console.warn('[WS] Failed to fetch auth token, connecting without token');
+        }
     }
 
     private connect(): void {
         try {
-            this.socket = new WebSocket(this.url);
+            const wsUrl = this.authToken
+                ? `${this.url}?token=${this.authToken}`
+                : this.url;
+            this.socket = new WebSocket(wsUrl);
             this.socket.onopen = () => {
                 console.log('[WS] Connected');
                 this.emit('connected', null);

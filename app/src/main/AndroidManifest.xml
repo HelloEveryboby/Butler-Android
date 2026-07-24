@@ -11,7 +11,7 @@
 
     <application
         android:name="com.butler.android.ButlerApp"
-        android:allowBackup="true"
+        android:allowBackup="false"
         android:label="Butler"
         android:theme="@style/Theme.ButlerAndroid"
         android:hardwareAccelerated="true"

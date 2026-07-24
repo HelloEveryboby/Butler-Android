@@ -24,11 +24,24 @@ import logging
 import threading
 import time
 import traceback
+import secrets
 from http.server import HTTPServer, BaseHTTPRequestHandler
 from socketserver import ThreadingMixIn
 from urllib.parse import urlparse, parse_qs
 
 logger = logging.getLogger("BridgeServer")
+
+# ── Security constants ────────────────────────────────────────────
+MAX_BODY_SIZE = 1 * 1024 * 1024  # 1MB request body limit
+ALLOWED_ORIGINS = {
+    'capacitor://localhost',
+    'http://localhost',
+    'http://127.0.0.1',
+    'http://localhost:5173',    # Vite dev server
+    'http://127.0.0.1:5173',
+}
+# One-time auth token shared across REST and WebSocket
+_BRIDGE_AUTH_TOKEN = secrets.token_hex(32)
 
 # ── WebSocket support ──────────────────────────────────────────────
 try:
@@ -95,18 +108,33 @@ def _core_method(module_name, method_name, *args, **kwargs):
 
 # ── REST Response Helpers ─────────────────────────────────────────
 
+def _get_cors_origin(handler):
+    """Return the appropriate CORS origin or None."""
+    origin = handler.headers.get('Origin', '')
+    # Allow capacitor://localhost (native WebView) and localhost
+    if origin in ALLOWED_ORIGINS:
+        return origin
+    # Also allow requests with no Origin header (native WebView may not send it)
+    if not origin:
+        return None
+    return None
+
+
 def _json_response(handler, data, status=200):
     handler.send_response(status)
     handler.send_header('Content-Type', 'application/json; charset=utf-8')
-    handler.send_header('Access-Control-Allow-Origin', '*')
+    origin = _get_cors_origin(handler)
+    if origin:
+        handler.send_header('Access-Control-Allow-Origin', origin)
+        handler.send_header('Vary', 'Origin')
     handler.send_header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS')
-    handler.send_header('Access-Control-Allow-Headers', 'Content-Type')
+    handler.send_header('Access-Control-Allow-Headers', 'Content-Type, Authorization')
     handler.end_headers()
     handler.wfile.write(json.dumps(data, ensure_ascii=False, default=str).encode('utf-8'))
 
 
 def _read_body(handler):
-    length = int(handler.headers.get('Content-Length', 0))
+    length = min(int(handler.headers.get('Content-Length', 0)), MAX_BODY_SIZE)
     if length == 0:
         return {}
     raw = handler.rfile.read(length)
@@ -264,6 +292,11 @@ def handle_get_system(handler):
     _json_response(handler, info)
 
 
+def handle_get_auth_token(handler):
+    """Return the one-time bridge auth token for WebSocket connection."""
+    _json_response(handler, {"token": _BRIDGE_AUTH_TOKEN})
+
+
 # ── Skill icon/color mapping ─────────────────────────────────────
 
 _SKILL_ICONS = {
@@ -321,9 +354,12 @@ class BridgeHTTPHandler(BaseHTTPRequestHandler):
 
     def do_OPTIONS(self):
         self.send_response(204)
-        self.send_header('Access-Control-Allow-Origin', '*')
+        origin = _get_cors_origin(self)
+        if origin:
+            self.send_header('Access-Control-Allow-Origin', origin)
+            self.send_header('Vary', 'Origin')
         self.send_header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS')
-        self.send_header('Access-Control-Allow-Headers', 'Content-Type')
+        self.send_header('Access-Control-Allow-Headers', 'Content-Type, Authorization')
         self.end_headers()
 
     def do_GET(self):
@@ -338,6 +374,7 @@ class BridgeHTTPHandler(BaseHTTPRequestHandler):
             '/api/cron': handle_get_cron,
             '/api/profile': handle_get_profile,
             '/api/system': handle_get_system,
+            '/api/auth/token': handle_get_auth_token,
         }
         handler = routes.get(path)
         if handler:
@@ -391,6 +428,14 @@ class ThreadedHTTPServer(ThreadingMixIn, HTTPServer):
 
 async def _ws_handler(websocket, path):
     """Handle WebSocket messages from the frontend."""
+    # Validate auth token from query string
+    qs = parse_qs(urlparse(path).query)
+    token = qs.get('token', [None])[0]
+    if token != _BRIDGE_AUTH_TOKEN:
+        logger.warning(f"WebSocket connection rejected: invalid token")
+        await websocket.close(4001, "Unauthorized")
+        return
+
     async for raw in websocket:
         try:
             msg = json.loads(raw)

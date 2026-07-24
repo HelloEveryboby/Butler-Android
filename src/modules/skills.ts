@@ -1,5 +1,6 @@
 import type { ButlerAPI, SkillItem } from '../services/api';
 import type { NotificationManager } from '../services/notification';
+import { escapeHtml } from '../utils';
 
 // SkillsManager - renders and manages the skill card grid from backend
 export class SkillsManager {
@@ -39,14 +40,14 @@ export class SkillsManager {
             const card = document.createElement('div');
             card.className = 'skill-card';
             card.innerHTML = `
-                <div class="skill-card-icon" style="color:${skill.color};background:${skill.color}18;">
-                    <i class="fas ${skill.icon || 'fa-puzzle-piece'}"></i>
+                <div class="skill-card-icon" style="color:${escapeHtml(skill.color)};background:${escapeHtml(skill.color)}18;">
+                    <i class="fas ${escapeHtml(skill.icon || 'fa-puzzle-piece')}"></i>
                 </div>
                 <div class="skill-card-info">
-                    <span class="skill-card-name">${skill.name}</span>
-                    <span class="skill-card-desc">${skill.desc}</span>
+                    <span class="skill-card-name">${escapeHtml(skill.name)}</span>
+                    <span class="skill-card-desc">${escapeHtml(skill.desc)}</span>
                 </div>
-                <button class="skill-card-run" data-skill="${skill.id}" title="运行">
+                <button class="skill-card-run" data-skill="${escapeHtml(skill.id)}" title="运行">
                     <i class="fas fa-play"></i>
                 </button>
             `;

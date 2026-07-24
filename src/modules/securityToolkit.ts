@@ -118,7 +118,7 @@ export class SecurityToolkit {
 
     private setScanOutput(text: string): void {
         const container = document.getElementById('security-scan-results');
-        if (container) container.innerHTML = `<div class="empty-state">${text}</div>`;
+        if (container) container.innerHTML = `<div class="empty-state">${escapeHtml(text)}</div>`;
     }
 
     private updateSyncStatus(data: Record<string, unknown>): void {

@@ -1,6 +1,14 @@
 import type { ButlerAPI } from '../services/api';
 import type { WebSocketService } from '../services/websocket';
 
+// Dangerous commands that need confirmation
+const DANGEROUS_COMMANDS = [
+    'rm -rf', 'rm -r', 'rmdir', 'del /f', 'del /s',
+    'format', 'mkfs', 'fdisk', 'dd if=', '> /dev/',
+    'chmod 777', 'sudo rm', ':(){ :|:& };:',  // fork bomb
+    'shutdown', 'reboot', 'halt', 'poweroff',
+];
+
 // TerminalManager - embedded terminal overlay, connected to backend
 export class TerminalManager {
     private api: ButlerAPI;
@@ -44,10 +52,41 @@ export class TerminalManager {
                 if (!cmd) return;
                 this.appendOutput(`$ ${cmd}`, 'command');
                 input.value = '';
-                // Send to backend
-                this.api.runTerminal(cmd);
+                this.executeCommand(cmd);
             }
         });
+    }
+
+    private executeCommand(cmd: string): void {
+        const lowerCmd = cmd.toLowerCase();
+        const isDangerous = DANGEROUS_COMMANDS.some(dc => lowerCmd.includes(dc));
+        if (isDangerous) {
+            this.appendOutput('⚠️ 危险命令已拦截，请确认后重试', 'error');
+            this.appendOutput('如果确认执行，请再次输入相同命令', 'response');
+            // Store pending dangerous command
+            const input = document.getElementById('terminal-input') as HTMLInputElement;
+            if (input) {
+                input.dataset.pendingCmd = cmd;
+                input.placeholder = '再次输入危险命令以确认...';
+            }
+            return;
+        }
+        // Check if this is a confirmation of a previously blocked command
+        const input = document.getElementById('terminal-input') as HTMLInputElement;
+        if (input?.dataset.pendingCmd) {
+            const pending = input.dataset.pendingCmd;
+            delete input.dataset.pendingCmd;
+            input.placeholder = '';
+            if (cmd === pending) {
+                this.appendOutput('确认执行危险命令...', 'response');
+                this.api.runTerminal(cmd);
+                return;
+            } else {
+                this.appendOutput('命令不匹配，已取消', 'error');
+                return;
+            }
+        }
+        this.api.runTerminal(cmd);
     }
 
     appendOutput(text: string, type: 'command' | 'response' | 'error' = 'response'): void {
