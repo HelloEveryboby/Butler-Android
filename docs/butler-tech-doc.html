@@ -392,6 +392,51 @@ sup a:hover { text-decoration: underline; }
     padding: 20px;
     margin: 16px 0;
 }
+
+/* ---- Issue Cards ---- */
+.issue-card {
+    background: var(--bg2);
+    border: 1px solid var(--rule);
+    border-radius: var(--radius);
+    padding: 22px 24px;
+    margin-bottom: 14px;
+    border-left: 4px solid var(--rule);
+}
+.issue-card.pri-high { border-left-color: var(--red); }
+.issue-card.pri-medium { border-left-color: var(--orange); }
+.issue-card.pri-low { border-left-color: var(--green); }
+.issue-card .issue-header {
+    display: flex; align-items: center; gap: 10px;
+    margin-bottom: 10px;
+}
+.issue-badge {
+    font-size: 0.78rem; font-weight: 700;
+    padding: 2px 10px; border-radius: 12px;
+}
+.issue-badge.high { background: rgba(255,59,48,0.1); color: #C0392B; }
+.issue-badge.medium { background: rgba(255,149,0,0.1); color: #B45309; }
+.issue-badge.low { background: rgba(52,199,89,0.1); color: #1B7A33; }
+.issue-tag {
+    font-size: 0.75rem; color: var(--muted);
+    background: var(--code-bg); padding: 2px 10px; border-radius: 4px;
+}
+.issue-card h4 {
+    font-size: 0.98rem; font-weight: 700; color: var(--ink);
+    margin: 0 0 8px;
+}
+.issue-card p {
+    font-size: 0.88rem; color: var(--muted);
+    margin: 0 0 12px; line-height: 1.65;
+}
+.issue-fix {
+    background: rgba(0,122,255,0.04);
+    border-radius: var(--radius-sm);
+    padding: 14px 16px;
+    font-size: 0.85rem;
+    color: var(--ink);
+    line-height: 1.65;
+}
+.issue-fix strong { color: var(--accent); }
 </style>
 </head>
 <body>
@@ -425,6 +470,7 @@ sup a:hover { text-decoration: underline; }
         <li><a href="#build">构建与部署</a></li>
         <li><a href="#platform">平台适配</a></li>
         <li><a href="#faq">常见问题</a></li>
+        <li><a href="#issues">已知问题与改进</a></li>
     </ol>
 </nav>
 
@@ -1128,6 +1174,120 @@ butler-android/
     <div class="card">
         <h4>TypeScript 编译报类型错误？</h4>
         <p>使用 <code>querySelectorAll&lt;HTMLElement&gt;('.selector')</code> 指定泛型类型，避免 <code>Element</code> 类型上不存在 <code>dataset</code> 等属性的错误。</p>
+    </div>
+</section>
+
+<!-- ======== 11. 已知问题与改进 ======== -->
+<section class="section" id="issues">
+    <h2>已知问题与改进计划</h2>
+    <p>以下列出当前已知的技术债务和改进方向，按优先级排序。</p>
+
+    <div class="issue-card pri-high">
+        <div class="issue-header">
+            <span class="issue-badge high">🔴 高</span>
+            <span class="issue-tag">CDN 依赖</span>
+        </div>
+        <h4>Font Awesome / Google Fonts 依赖外部 CDN</h4>
+        <p>当前图标和字体完全依赖 CDN 加载，离线环境下所有图标和字体全部失效，页面仅显示占位符。对于移动 APP 场景，网络不稳定是常态，这会导致用户体验严重下降。</p>
+        <div class="issue-fix">
+            <strong>建议方案：</strong>将 Font Awesome 图标和 Inter 字体文件本地化到 <code>dist/assets/</code> 中，通过 Vite 的静态资源处理打包。或逐步将图标替换为内联 SVG，消除第三方依赖。
+        </div>
+    </div>
+
+    <div class="issue-card pri-medium">
+        <div class="issue-header">
+            <span class="issue-badge medium">🟡 中</span>
+            <span class="issue-tag">CSS 组织</span>
+        </div>
+        <h4>1666 行单 CSS 文件</h4>
+        <p>所有样式集中在一个 <code>style.css</code> 文件中，随着模块增加维护成本线性增长。样式冲突风险较高，查找和修改特定组件的样式需要全文搜索。</p>
+        <div class="issue-fix">
+            <strong>建议方案：</strong>拆分为模块级 CSS 文件（如 <code>chat.css</code>、<code>terminal.css</code>），在 <code>main.ts</code> 中按需导入。或采用 CSS Modules / Tailwind CSS 等方案，实现样式作用域隔离。
+        </div>
+    </div>
+
+    <div class="issue-card pri-medium">
+        <div class="issue-header">
+            <span class="issue-badge medium">🟡 中</span>
+            <span class="issue-tag">配置硬编码</span>
+        </div>
+        <h4>WebSocket 地址硬编码 localhost:8080</h4>
+        <p><code>WebSocketService</code> 和 <code>ButlerAPI</code> 中的服务端地址写死为 <code>ws://localhost:8080/ws</code> 和 <code>http://localhost:8080/api</code>。当后端部署在局域网其他设备或远程服务器时，需要修改源码重新构建。</p>
+        <div class="issue-fix">
+            <strong>建议方案：</strong>在设置页面增加"服务器地址"配置项，保存到 localStorage，初始化时读取。支持运行时动态切换后端地址，无需重新构建。
+        </div>
+    </div>
+
+    <div class="issue-card pri-medium">
+        <div class="issue-header">
+            <span class="issue-badge medium">🟡 中</span>
+            <span class="issue-tag">状态管理</span>
+        </div>
+        <h4>无状态管理框架</h4>
+        <p>22 个模块共享全局 DOM 状态，各模块通过直接操作 DOM 和全局变量通信。当多个模块同时修改同一 DOM 节点时，可能产生竞态条件和渲染不一致。</p>
+        <div class="issue-fix">
+            <strong>建议方案：</strong>引入轻量状态管理方案（如 Zustand 或 Preact Signals），将共享状态（主题、语言、连接状态、通知计数）集中管理，通过订阅模式驱动 UI 更新。
+        </div>
+    </div>
+
+    <div class="issue-card pri-medium">
+        <div class="issue-header">
+            <span class="issue-badge medium">🟡 中</span>
+            <span class="issue-tag">流式处理</span>
+        </div>
+        <h4>ChatManager 未处理流式输出</h4>
+        <p>后端发送的 <code>chat_chunk</code> 逐字流式消息在 <code>listenWsResponses</code> 中没有逐字拼接逻辑，当前仅处理了 <code>chat:response</code> 终态消息。这意味着 AI 回复需要等待全部生成完毕后才一次性显示，无法实现打字机效果。</p>
+        <div class="issue-fix">
+            <strong>建议方案：</strong>在 <code>listenWsResponses</code> 中增加对 <code>chat_chunk</code> 消息的处理，维护一个按 <code>request_id</code> 索引的缓冲区，逐 chunk 追加到对应 bot 消息的 DOM 节点中。
+        </div>
+    </div>
+
+    <div class="issue-card pri-medium">
+        <div class="issue-header">
+            <span class="issue-badge medium">🟡 中</span>
+            <span class="issue-tag">离线缓存</span>
+        </div>
+        <h4>无离线缓存 / Service Worker</h4>
+        <p>混合 APP 场景下，WebView 每次启动都需要加载完整的 HTML/CSS/JS 资源。在没有 Service Worker 的情况下，所有资源必须从磁盘或网络重新读取，冷启动体验较差。</p>
+        <div class="issue-fix">
+            <strong>建议方案：</strong>注册 Service Worker 实现资源预缓存，利用 Cache API 缓存静态资源。对于 Capacitor 场景，可利用 WebView 的本地存储机制实现资源持久化。
+        </div>
+    </div>
+
+    <div class="issue-card pri-medium">
+        <div class="issue-header">
+            <span class="issue-badge medium">🟡 中</span>
+            <span class="issue-tag">测试覆盖</span>
+        </div>
+        <h4>无单元测试</h4>
+        <p>22 个模块、5 个服务层类，零测试覆盖。任何修改都可能引入未检测到的回归问题，重构风险高。</p>
+        <div class="issue-fix">
+            <strong>建议方案：</strong>引入 Vitest 作为测试框架，从服务层（<code>WebSocketService</code>、<code>ButlerAPI</code>）和工具函数（<code>utils.ts</code>）开始编写单元测试。逐步覆盖核心模块的关键逻辑。
+        </div>
+    </div>
+
+    <div class="issue-card pri-medium">
+        <div class="issue-header">
+            <span class="issue-badge medium">🟡 中</span>
+            <span class="issue-tag">模板内联</span>
+        </div>
+        <h4>index.html 51KB，所有面板 DOM 内联</h4>
+        <p>18 个模块的完整 HTML 面板结构全部内联在 <code>index.html</code> 中，导致文件体积大、难以维护。新增模块需要手动编辑 HTML 文件插入面板结构。</p>
+        <div class="issue-fix">
+            <strong>建议方案：</strong>将每个模块的 HTML 模板抽离为独立的 <code>.html</code> 片段或使用 Vite 的 <code>?raw</code> 导入。在模块初始化时动态注入面板 DOM，实现按需加载和模板化管理。
+        </div>
+    </div>
+
+    <div class="issue-card pri-low">
+        <div class="issue-header">
+            <span class="issue-badge low">🟡 低</span>
+            <span class="issue-tag">鸿蒙兼容</span>
+        </div>
+        <h4>鸿蒙不支持 Capacitor 插件</h4>
+        <p>Capacitor 插件（haptics、status-bar、splash-screen 等）在鸿蒙 HarmonyOS 平台不可用。当前鸿蒙端仅能使用 Web 组件加载页面，无法调用原生触觉反馈、状态栏控制等能力。</p>
+        <div class="issue-fix">
+            <strong>建议方案：</strong>通过 ArkTS 原生 API 实现等效功能，在 Web 组件中通过 <code>JavaScriptProxy</code> 或 <code>runJavaScript</code> 桥接原生能力。封装统一的平台适配层，在运行时检测平台并调用对应实现。
+        </div>
     </div>
 </section>
 
