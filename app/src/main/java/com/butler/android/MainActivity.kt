@@ -37,6 +37,8 @@ class MainActivity : AppCompatActivity() {
     private var nativePort: WebMessagePort? = null
     private var batteryReceiver: BroadcastReceiver? = null
     private val skillExecutor = java.util.concurrent.Executors.newFixedThreadPool(4)
+    private var activeModelHelper: LlmModelHelper? = null
+    private lateinit var downloadRepository: DownloadRepository
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -59,6 +61,9 @@ class MainActivity : AppCompatActivity() {
         val py = Python.getInstance()
         butlerModule = py.getModule("butler_android")
         butlerModule?.callAttr("initialize", filesDir.absolutePath)
+
+        // Initialize Model Download Repository
+        downloadRepository = DownloadRepository(this)
 
         // Setup Asset Loader
         assetLoader = WebViewAssetLoader.Builder()
@@ -203,6 +208,107 @@ class MainActivity : AppCompatActivity() {
     }
 
     inner class ButlerNativeBridge {
+        @JavascriptInterface
+        fun triggerModelDownload(name: String, url: String, fileName: String, version: String, runtimeTypeStr: String, hfToken: String?) {
+            runOnUiThread {
+                try {
+                    val runtimeType = if (runtimeTypeStr == "AICORE") RuntimeType.AICORE else RuntimeType.LITERT_LM
+                    val model = Model(name, name, url, 0, fileName, version, true, runtimeType)
+                    val uuid = downloadRepository.startModelDownload(model, hfToken)
+                    downloadRepository.getDownloadWorkInfo(uuid).observe(this@MainActivity) { workInfo ->
+                        if (workInfo != null) {
+                            val progress = workInfo.progress.getInt("progress", -1)
+                            val state = workInfo.state.name
+                            val updateJson = JSONObject().apply {
+                                put("type", "MODEL_DOWNLOAD_UPDATE")
+                                put("modelName", name)
+                                put("progress", progress)
+                                put("state", state)
+                            }
+                            if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.M) {
+                                nativePort?.postMessage(WebMessage(updateJson.toString()))
+                            }
+                        }
+                    }
+                } catch (e: Exception) {
+                    Log.e("MainActivity", "Failed to start download via bridge: ${e.message}")
+                }
+            }
+        }
+
+        @JavascriptInterface
+        fun initializeModel(name: String, url: String, fileName: String, version: String, runtimeTypeStr: String) {
+            runOnUiThread {
+                try {
+                    val runtimeType = if (runtimeTypeStr == "AICORE") RuntimeType.AICORE else RuntimeType.LITERT_LM
+                    val model = Model(name, name, url, 0, fileName, version, true, runtimeType)
+
+                    // Release any active runtime
+                    activeModelHelper?.cleanUp {}
+
+                    val helper: LlmModelHelper = if (runtimeType == RuntimeType.AICORE) {
+                        AiCoreModelHelper()
+                    } else {
+                        LiteRtLlmModelHelper()
+                    }
+                    activeModelHelper = helper
+
+                    helper.initialize(this@MainActivity, model) { success ->
+                        val initStatus = JSONObject().apply {
+                            put("type", "MODEL_INIT_STATUS")
+                            put("modelName", name)
+                            put("success", success)
+                        }
+                        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.M) {
+                            nativePort?.postMessage(WebMessage(initStatus.toString()))
+                        }
+                    }
+                } catch (e: Exception) {
+                    Log.e("MainActivity", "Failed to initialize model: ${e.message}")
+                }
+            }
+        }
+
+        @JavascriptInterface
+        fun runModelInference(input: String) {
+            val helper = activeModelHelper
+            if (helper == null) {
+                Log.e("MainActivity", "No active model initialized.")
+                return
+            }
+            helper.runInference(input, emptyList(), object : ResultListener {
+                override fun onResult(partialResult: String, done: Boolean) {
+                    runOnUiThread {
+                        val inferenceResult = JSONObject().apply {
+                            put("type", "MODEL_INFERENCE_CHUNK")
+                            put("chunk", partialResult)
+                            put("done", done)
+                        }
+                        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.M) {
+                            nativePort?.postMessage(WebMessage(inferenceResult.toString()))
+                        }
+                    }
+                }
+
+                override fun onError(errorMessage: String) {
+                    runOnUiThread {
+                        val errorResult = JSONObject().apply {
+                            put("type", "MODEL_INFERENCE_ERROR")
+                            put("error", errorMessage)
+                        }
+                        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.M) {
+                            nativePort?.postMessage(WebMessage(errorResult.toString()))
+                        }
+                    }
+                }
+            })
+        }
+
+        @JavascriptInterface
+        fun stopModelResponse() {
+            activeModelHelper?.stopResponse()
+        }
+
         @JavascriptInterface
         fun triggerWormholeTransfer(assetId: String, targetX: Int, targetY: Int) {
             // Logic to forward to Go Kernel via runner methods if needed

@@ -379,6 +379,10 @@
                     <div class="settings-icon icon-purple"><i class="fas fa-palette"></i></div>
                     <span>界面与主题</span>
                 </div>
+                <div class="settings-nav-item" id="tab-btn-local-model" onclick="switchSettingsTab('local-model')">
+                    <div class="settings-icon icon-blue"><i class="fas fa-microchip"></i></div>
+                    <span>端端本地大模型</span>
+                </div>
             </div>
             <div class="settings-content">
                 <!-- Tab 1: Model Config -->
@@ -517,6 +521,49 @@
                         <div class="settings-row">
                             <span class="row-label">桌面电子小狗 (Pixel Pet)</span>
                             <button class="apple-btn-primary" onclick="launchPixelPet()" style="padding: 6px 14px; font-size: 12px; border-radius: 6px; width: 200px;">启动电子宠物 🐾</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Tab 5: Local Model -->
+                <div id="settings-tab-local-model" class="settings-panel">
+                    <div class="settings-title">本地端侧大模型管理</div>
+                    <div class="settings-group-card" style="margin-bottom: 16px;">
+                        <div style="padding: 16px; border-bottom: 1px solid var(--border-color); display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px;">
+                            <div>
+                                <h4 style="margin: 0 0 4px; font-size: 14px; font-weight: 600; color: var(--text-primary);">Gemma-3n-E2B-it</h4>
+                                <span style="font-size: 11px; color: var(--text-secondary);">大小: ~3.4GB | 运行时: LiteRT (TFLite)</span>
+                            </div>
+                            <div style="display: flex; align-items: center; gap: 8px;">
+                                <div id="local-model-progress-wrap-gemma" style="display: none; width: 100px; height: 6px; background: rgba(255,255,255,0.1); border-radius: 3px; overflow: hidden; margin-right: 8px;">
+                                    <div id="local-model-progress-bar-gemma" style="width: 0%; height: 100%; background: var(--accent-color); transition: width 0.1s;"></div>
+                                </div>
+                                <span id="local-model-status-gemma" style="font-size: 12px; font-weight: bold; color: var(--text-secondary); margin-right: 8px;">未下载</span>
+                                <button class="apple-btn-primary" id="btn-download-gemma" onclick="downloadLocalModel('gemma-3n-e2b-it', 'https://storage.googleapis.com/jm-models/gemma2-2b-it-gpu-int4.bin', 'gemma2-2b.bin', 'v1', 'LITERT_LM', 'local-model-status-gemma', 'local-model-progress-wrap-gemma', 'local-model-progress-bar-gemma', this)" style="padding: 4px 10px; font-size: 11px; border-radius: 4px; margin: 0; width: auto;">下载</button>
+                                <button class="apple-btn-secondary" id="btn-load-gemma" onclick="loadLocalModel('gemma-3n-e2b-it', 'https://storage.googleapis.com/jm-models/gemma2-2b-it-gpu-int4.bin', 'gemma2-2b.bin', 'v1', 'LITERT_LM', 'local-model-status-gemma', this)" style="padding: 4px 10px; font-size: 11px; border-radius: 4px; margin: 0; width: auto; display: none;">加载到内存</button>
+                            </div>
+                        </div>
+                        <div style="padding: 16px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px;">
+                            <div>
+                                <h4 style="margin: 0 0 4px; font-size: 14px; font-weight: 600; color: var(--text-primary);">Google AI Core (Gemini Nano)</h4>
+                                <span style="font-size: 11px; color: var(--text-secondary);">大小: 系统自管 | 运行时: AI Core Service</span>
+                            </div>
+                            <div style="display: flex; align-items: center; gap: 8px;">
+                                <span id="local-model-status-aicore" style="font-size: 12px; font-weight: bold; color: var(--text-secondary); margin-right: 8px;">准备就绪</span>
+                                <button class="apple-btn-primary" id="btn-load-aicore" onclick="loadLocalModel('aicore-nano', '', '', '', 'AICORE', 'local-model-status-aicore', this)" style="padding: 4px 10px; font-size: 11px; border-radius: 4px; margin: 0; width: auto;">加载到内存</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="settings-title">本地模型实时推理沙盒</div>
+                    <div class="settings-group-card" style="padding: 16px;">
+                        <div id="local-inference-chat" style="height: 180px; overflow-y: auto; background: rgba(0,0,0,0.15); border-radius: 8px; padding: 12px; margin-bottom: 12px; border: 1px solid var(--border-color); font-size: 13px; line-height: 1.5; color: var(--text-primary);">
+                            <div style="color: var(--text-secondary); text-align: center; margin-top: 60px;">请先加载一个本地模型到内存中，然后在下方输入并运行推理。</div>
+                        </div>
+                        <div style="display: flex; gap: 8px;">
+                            <input type="text" id="local-inference-input" placeholder="输入测试 Prompts..." style="flex: 1; padding: 8px 12px; background: rgba(255,255,255,0.08); border: 1px solid var(--border-color); border-radius: 6px; color: var(--text-primary); font-size: 13px; outline: none;">
+                            <button class="apple-btn-primary" id="btn-run-local-inference" onclick="runLocalInference()" style="padding: 8px 16px; font-size: 12px; border-radius: 6px; margin: 0; width: auto;" disabled>运行推理</button>
+                            <button class="apple-btn-secondary" id="btn-stop-local-inference" onclick="stopLocalInference()" style="padding: 8px 16px; font-size: 12px; border-radius: 6px; margin: 0; width: auto; display: none;">停止</button>
                         </div>
                     </div>
                 </div>
