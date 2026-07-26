@@ -819,6 +819,84 @@ document.addEventListener('DOMContentLoaded', () => {
                     if (data.type === "LOG" && window.TimeMachine) {
                         window.TimeMachine.pushLog(data.data);
                     }
+                    // 4. Model Download Progress updates
+                    if (data.type === "MODEL_DOWNLOAD_UPDATE") {
+                        const name = data.modelName;
+                        const simpleName = name.split('-')[0]; // "gemma"
+                        const status = document.getElementById(`local-model-status-${simpleName}`);
+                        const wrap = document.getElementById(`local-model-progress-wrap-${simpleName}`);
+                        const bar = document.getElementById(`local-model-progress-bar-${simpleName}`);
+                        if (status) {
+                            if (data.state === "RUNNING") {
+                                status.innerText = `下载中 (${data.progress}%)`;
+                                if (wrap) wrap.style.display = "block";
+                                if (bar) bar.style.width = `${data.progress}%`;
+                            } else if (data.state === "SUCCEEDED") {
+                                status.innerText = "已下载";
+                                if (wrap) wrap.style.display = "none";
+                                const dwnBtn = document.getElementById(`btn-download-${simpleName}`);
+                                if (dwnBtn) dwnBtn.style.display = "none";
+                                const loadBtn = document.getElementById(`btn-load-${simpleName}`);
+                                if (loadBtn) loadBtn.style.display = "inline-block";
+                            } else if (data.state === "FAILED") {
+                                status.innerText = "下载失败";
+                                if (wrap) wrap.style.display = "none";
+                                const dwnBtn = document.getElementById(`btn-download-${simpleName}`);
+                                if (dwnBtn) dwnBtn.disabled = false;
+                            }
+                        }
+                    }
+                    // 5. Model Initialization status
+                    if (data.type === "MODEL_INIT_STATUS") {
+                        const name = data.modelName;
+                        const simpleName = name.split('-')[0]; // "gemma" or "aicore"
+                        const status = document.getElementById(`local-model-status-${simpleName}`);
+                        if (status) {
+                            if (data.success) {
+                                status.innerText = "运行中";
+                                const runBtn = document.getElementById('btn-run-local-inference');
+                                if (runBtn) runBtn.disabled = false;
+                                const chatBox = document.getElementById('local-inference-chat');
+                                if (chatBox) chatBox.innerHTML = `<div style="color: #34C759; margin-bottom: 8px;">[系统] 成功在本地物理内存中初始化并 Warmup ${name} 大模型。</div>`;
+                            } else {
+                                status.innerText = "装载失败";
+                                const loadBtn = document.getElementById(`btn-load-${simpleName}`);
+                                if (loadBtn) loadBtn.disabled = false;
+                            }
+                        }
+                    }
+                    // 6. Streaming Inference chunks
+                    if (data.type === "MODEL_INFERENCE_CHUNK") {
+                        const chatBox = document.getElementById('local-inference-chat');
+                        const responseEl = document.getElementById('local-ai-response-current');
+                        if (!window.tempResponseText) window.tempResponseText = "";
+                        window.tempResponseText += data.chunk;
+
+                        if (responseEl) {
+                            responseEl.innerHTML = `<strong>本地 AI:</strong> ${window.escapeHTML(window.tempResponseText)}`;
+                        }
+                        if (chatBox) chatBox.scrollTop = chatBox.scrollHeight;
+
+                        if (data.done) {
+                            if (responseEl) responseEl.removeAttribute('id');
+                            const runBtn = document.getElementById('btn-run-local-inference');
+                            const stopBtn = document.getElementById('btn-stop-local-inference');
+                            if (runBtn) runBtn.style.display = "inline-block";
+                            if (stopBtn) stopBtn.style.display = "none";
+                        }
+                    }
+                    // 7. Inference errors
+                    if (data.type === "MODEL_INFERENCE_ERROR") {
+                        const chatBox = document.getElementById('local-inference-chat');
+                        if (chatBox) {
+                            chatBox.innerHTML += `<div style="color: var(--accent-red); margin-bottom: 8px;"><strong>错误:</strong> ${window.escapeHTML(data.error)}</div>`;
+                            chatBox.scrollTop = chatBox.scrollHeight;
+                        }
+                        const runBtn = document.getElementById('btn-run-local-inference');
+                        const stopBtn = document.getElementById('btn-stop-local-inference');
+                        if (runBtn) runBtn.style.display = "inline-block";
+                        if (stopBtn) stopBtn.style.display = "none";
+                    }
                 } catch (err) {
                     console.error("Native Bridge Parse Error:", err);
                 }
@@ -827,3 +905,117 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 });
+
+// --- Local On-Device AI Models frontend handers ---
+window.downloadLocalModel = (name, url, fileName, version, runtimeType, statusId, progressWrapId, progressBarId, btn) => {
+    const status = document.getElementById(statusId);
+    const wrap = document.getElementById(progressWrapId);
+    const bar = document.getElementById(progressBarId);
+    if (status) status.innerText = "正在下载...";
+    if (wrap) wrap.style.display = "block";
+    if (bar) bar.style.width = "0%";
+    if (btn) btn.disabled = true;
+
+    if (window.ButlerNativeBridge && window.ButlerNativeBridge.triggerModelDownload) {
+        window.ButlerNativeBridge.triggerModelDownload(name, url, fileName, version, runtimeType, "");
+    } else {
+        // Simulation for non-Android environments (standalone Web preview)
+        let progress = 0;
+        const interval = setInterval(() => {
+            progress += 5;
+            if (bar) bar.style.width = `${progress}%`;
+            if (status) status.innerText = `下载中 (${progress}%)`;
+            if (progress >= 100) {
+                clearInterval(interval);
+                if (status) status.innerText = "已下载";
+                if (wrap) wrap.style.display = "none";
+                const loadBtn = document.getElementById(`btn-load-${name.split('-')[0]}`);
+                if (loadBtn) loadBtn.style.display = "inline-block";
+                if (btn) btn.style.display = "none";
+            }
+        }, 150);
+    }
+};
+
+window.loadLocalModel = (name, url, fileName, version, runtimeType, statusId, btn) => {
+    const status = document.getElementById(statusId);
+    if (status) status.innerText = "正在初始化...";
+    if (btn) btn.disabled = true;
+
+    if (window.ButlerNativeBridge && window.ButlerNativeBridge.initializeModel) {
+        window.ButlerNativeBridge.initializeModel(name, url, fileName, version, runtimeType);
+    } else {
+        // Standalone browser preview simulation fallback
+        setTimeout(() => {
+            if (status) status.innerText = "运行中";
+            if (btn) btn.style.display = "none";
+            const runBtn = document.getElementById('btn-run-local-inference');
+            if (runBtn) runBtn.disabled = false;
+            const chatBox = document.getElementById('local-inference-chat');
+            if (chatBox) chatBox.innerHTML = `<div style="color: #34C759; margin-bottom: 8px;">[系统] 成功加载 ${name} 模拟模型到本地物理内存。</div>`;
+        }, 1000);
+    }
+};
+
+window.runLocalInference = () => {
+    const inputEl = document.getElementById('local-inference-input');
+    const input = inputEl ? inputEl.value : "";
+    if (!input) return;
+
+    if (inputEl) inputEl.value = "";
+    const chatBox = document.getElementById('local-inference-chat');
+    if (chatBox) {
+        chatBox.innerHTML += `<div style="margin-bottom: 8px;"><strong>你:</strong> ${window.escapeHTML(input)}</div>`;
+        chatBox.innerHTML += `<div id="local-ai-response-current" style="margin-bottom: 8px; color: var(--accent-blue);"><strong>本地 AI:</strong> 正在生成...</div>`;
+        chatBox.scrollTop = chatBox.scrollHeight;
+    }
+
+    const runBtn = document.getElementById('btn-run-local-inference');
+    const stopBtn = document.getElementById('btn-stop-local-inference');
+    if (runBtn) runBtn.style.display = "none";
+    if (stopBtn) stopBtn.style.display = "inline-block";
+
+    if (window.ButlerNativeBridge && window.ButlerNativeBridge.runModelInference) {
+        window.tempResponseText = "";
+        window.ButlerNativeBridge.runModelInference(input);
+    } else {
+        // Simulated streaming run for browser preview fallback
+        let words = "这是一个模拟在端侧直接执行的流式推理。数据安全保障，毫秒延迟。".split(" ");
+        let current = "";
+        let index = 0;
+        const interval = setInterval(() => {
+            current += words[index++] + " ";
+            const responseEl = document.getElementById('local-ai-response-current');
+            if (responseEl) {
+                responseEl.innerHTML = `<strong>本地 AI:</strong> ${current}`;
+            }
+            if (index >= words.length || !runBtn) {
+                clearInterval(interval);
+                if (responseEl) {
+                    responseEl.removeAttribute('id');
+                }
+                if (runBtn) runBtn.style.display = "inline-block";
+                if (stopBtn) stopBtn.style.display = "none";
+            }
+        }, 200);
+        window.localInferenceInterval = interval;
+    }
+};
+
+window.stopLocalInference = () => {
+    const runBtn = document.getElementById('btn-run-local-inference');
+    const stopBtn = document.getElementById('btn-stop-local-inference');
+    if (runBtn) runBtn.style.display = "inline-block";
+    if (stopBtn) stopBtn.style.display = "none";
+
+    if (window.ButlerNativeBridge && window.ButlerNativeBridge.stopModelResponse) {
+        window.ButlerNativeBridge.stopModelResponse();
+    } else if (window.localInferenceInterval) {
+        clearInterval(window.localInferenceInterval);
+        const responseEl = document.getElementById('local-ai-response-current');
+        if (responseEl) {
+            responseEl.innerHTML += " [已停止]";
+            responseEl.removeAttribute('id');
+        }
+    }
+};
