@@ -3360,3 +3360,414 @@ body.interface-mobile .terminal-output,
         line-height: 1.35 !important;
     }
 }
+
+/* ==========================================================================
+   Butler Memos Upgrade Styles: Interactive Cards & Batch Processing
+   ========================================================================== */
+
+:root {
+    --memo-accent: #f59e0b;
+}
+.theme-dark {
+    --memo-accent: #fbbf24;
+}
+
+/* Checkbox and Multi-Selection Mode */
+.card-checkbox {
+    margin-right: 12px;
+    display: none;
+    width: 18px;
+    height: 18px;
+    accent-color: var(--memo-accent);
+    cursor: pointer;
+    vertical-align: middle;
+}
+
+.selection-mode .card-checkbox {
+    display: inline-block;
+}
+
+.memo-card.selected {
+    border-color: var(--memo-accent) !important;
+    background: rgba(245, 158, 11, 0.08) !important;
+}
+
+/* Batch Operations Bottom Bar */
+.batch-bar {
+    display: none;
+    position: sticky;
+    bottom: 0;
+    z-index: 100;
+    margin-top: auto;
+    padding: 14px 20px;
+    background: rgba(255, 255, 255, 0.8);
+    border-radius: 16px;
+    border: 1px solid var(--border-color);
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    flex-wrap: wrap;
+    backdrop-filter: blur(25px);
+    -webkit-backdrop-filter: blur(25px);
+    box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.1);
+}
+
+.theme-dark .batch-bar {
+    background: rgba(28, 28, 30, 0.85);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.batch-bar.visible {
+    display: flex;
+    animation: slideUpFade 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes slideUpFade {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.batch-bar .info {
+    font-size: 14px;
+    color: var(--text-primary);
+    font-weight: 600;
+}
+
+.batch-bar .actions {
+    display: flex;
+    gap: 12px;
+}
+
+.btn-batch-delete {
+    background: #ff3b30;
+    color: white;
+    padding: 8px 24px;
+    border-radius: 40px;
+    border: none;
+    font-weight: 600;
+    font-size: 13px;
+    cursor: pointer;
+    transition: all 0.2s var(--apple-easing);
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    box-shadow: 0 4px 12px rgba(255, 59, 48, 0.2);
+}
+
+.btn-batch-delete:hover:not(:disabled) {
+    background: #e03b30;
+    transform: scale(1.02);
+}
+
+.btn-batch-delete:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+    box-shadow: none;
+}
+
+.btn-batch-cancel {
+    background: var(--border-color);
+    color: var(--text-primary);
+    padding: 8px 24px;
+    border-radius: 40px;
+    border: none;
+    font-weight: 500;
+    font-size: 13px;
+    cursor: pointer;
+    transition: all 0.2s var(--apple-easing);
+}
+
+.btn-batch-cancel:hover {
+    background: rgba(255, 255, 255, 0.15);
+}
+
+/* Card layout internal adjustments */
+.note-title {
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--text-primary);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+}
+
+.note-title .tag {
+    font-size: 11px;
+    background: var(--border-color);
+    color: var(--text-secondary);
+    padding: 2px 10px;
+    border-radius: 30px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background 0.2s, transform 0.15s;
+}
+
+.note-title .tag:hover {
+    background: rgba(120, 120, 120, 0.25);
+    transform: scale(1.04);
+}
+
+.note-date {
+    font-size: 12px;
+    color: var(--text-secondary);
+    background: rgba(255, 255, 255, 0.04);
+    padding: 4px 14px;
+    border-radius: 30px;
+}
+
+.note-preview {
+    font-size: 14px;
+    color: var(--text-secondary);
+    margin: 8px 0 12px 0;
+    line-height: 1.5;
+    max-width: 90%;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.memo-card.expanded .note-preview {
+    display: none;
+}
+
+/* Collapsible Details Structure */
+.extra-details {
+    max-height: 0;
+    opacity: 0;
+    overflow: hidden;
+    transition: max-height 0.4s var(--apple-easing), opacity 0.3s ease, margin 0.3s;
+    margin-top: 0;
+    background: rgba(255, 255, 255, 0.02);
+    border-radius: 12px;
+    padding: 0 16px;
+    border-left: 3px solid rgba(245, 158, 11, 0.2);
+}
+
+.theme-dark .extra-details {
+    background: rgba(0, 0, 0, 0.15);
+}
+
+.memo-card.expanded .extra-details {
+    max-height: 1200px;
+    opacity: 1;
+    padding: 16px;
+    margin-top: 16px;
+    border-left-color: var(--memo-accent);
+}
+
+.extra-details p {
+    font-size: 14px;
+    color: var(--text-primary);
+    margin-bottom: 8px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.extra-details i {
+    color: var(--memo-accent);
+    width: 20px;
+    text-align: center;
+}
+
+.extra-details .editable-value {
+    cursor: pointer;
+    padding: 2px 8px;
+    border-radius: 6px;
+    transition: background 0.2s, box-shadow 0.2s;
+    background: transparent;
+    display: inline-block;
+}
+
+.extra-details .editable-value:hover {
+    background: rgba(255, 255, 255, 0.08);
+    box-shadow: 0 0 0 1px var(--border-color);
+}
+
+.extra-details .badge {
+    background: rgba(245, 158, 11, 0.15);
+    color: var(--memo-accent);
+    padding: 2px 12px;
+    border-radius: 30px;
+    font-size: 12px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background 0.2s, transform 0.15s;
+    display: inline-block;
+}
+
+.extra-details .badge:hover {
+    background: rgba(245, 158, 11, 0.25);
+    transform: scale(1.04);
+}
+
+/* Image gallery within card detail */
+.image-gallery {
+    margin-top: 12px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
+.image-gallery img {
+    max-width: 120px;
+    max-height: 120px;
+    object-fit: cover;
+    border-radius: 12px;
+    border: 2px solid var(--border-color);
+    transition: transform 0.2s, box-shadow 0.2s;
+    cursor: pointer;
+}
+
+.image-gallery img:hover {
+    transform: scale(1.05);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    border-color: var(--memo-accent);
+}
+
+.image-gallery .no-image {
+    color: var(--text-secondary);
+    font-size: 13px;
+    padding: 8px 0;
+}
+
+/* Quick Action bar underneath card */
+.action-bar {
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    gap: 10px;
+    margin-top: 14px;
+    flex-wrap: wrap;
+}
+
+.btn-memo {
+    padding: 6px 16px;
+    border-radius: 40px;
+    font-size: 13px;
+    font-weight: 500;
+    border: none;
+    cursor: pointer;
+    transition: all 0.25s var(--apple-easing);
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: transparent;
+    color: var(--text-primary);
+}
+
+.btn-done {
+    background: rgba(255, 255, 255, 0.05);
+    color: var(--text-primary);
+    border: 1px solid var(--border-color);
+}
+
+.btn-done:hover {
+    background: rgba(255, 255, 255, 0.1);
+    transform: scale(0.96);
+}
+
+.btn-image {
+    background: rgba(0, 122, 255, 0.1);
+    color: var(--accent-color);
+    border: 1px solid rgba(0, 122, 255, 0.2);
+}
+
+.btn-image:hover {
+    background: rgba(0, 122, 255, 0.15);
+    transform: scale(0.96);
+}
+
+.btn-edit-memo {
+    background: var(--text-primary);
+    color: var(--bg-glass);
+    padding: 6px 20px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+}
+
+.theme-dark .btn-edit-memo {
+    background: #ffffff;
+    color: #121212;
+}
+
+.btn-edit-memo:hover {
+    opacity: 0.9;
+    transform: translateY(-2px) scale(1.02);
+}
+
+.btn-edit-memo:active {
+    transform: scale(0.94);
+}
+
+.btn-delete-memo {
+    background: rgba(255, 59, 48, 0.1);
+    color: #ff3b30;
+    border: 1px solid rgba(255, 59, 48, 0.2);
+    width: 34px;
+    height: 34px;
+    justify-content: center;
+    border-radius: 50% !important;
+}
+
+.btn-delete-memo:hover {
+    background: rgba(255, 59, 48, 0.15);
+    transform: scale(0.96);
+}
+
+.btn-expand-toggle {
+    background: transparent;
+    color: var(--text-secondary);
+    font-size: 13px;
+    padding: 6px 12px;
+    border-radius: 30px;
+    border: 1px dashed var(--border-color);
+    margin-left: auto;
+    transition: all 0.2s;
+}
+
+.btn-expand-toggle:hover {
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid var(--border-color);
+    color: var(--text-primary);
+}
+
+.btn-expand-toggle i {
+    transition: transform 0.4s var(--apple-easing);
+}
+
+.memo-card.expanded .btn-expand-toggle i {
+    transform: rotate(180deg);
+}
+
+/* Custom button "Select" and "New" matching Butler styles */
+.btn-select-mode {
+    background: var(--border-color);
+    color: var(--text-primary);
+    border: none;
+    padding: 8px 18px;
+    border-radius: 40px;
+    font-weight: 500;
+    font-size: 13px;
+    cursor: pointer;
+    transition: all 0.2s var(--apple-easing);
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.btn-select-mode:hover {
+    background: rgba(255, 255, 255, 0.15);
+    transform: scale(1.02);
+}
+
+.btn-select-mode.active {
+    background: #ff3b30;
+    color: white;
+}
