@@ -469,6 +469,70 @@ await StatusBar.setBackgroundColor({ color: '#0a0a0f' });
 
 ---
 
+## 端侧模型下载与部署机制设计
+
+为实现真正的**离线优先 (Offline First)**与端侧隐私保护，Butler AI 基于 `google-ai-edge/gallery` 的核心设计，针对 Hybrid 混合架构（Android 主机容器 + Capacitor 桥接 + Go 核心核心 + Python 插件层）设计了一套端侧大模型下载、授权校验、多运行时部署与流式推理管理机制。
+
+### 核心设计理念
+
+1. **下载与部署分离**：
+   - 模型下载（由后台 `DownloadWorker` 调度）与内存装载（`LlmModelHelper` 的 `initialize()`）完全独立。
+   - 用户可以同时下载多个模型文件存入磁盘沙盒，但同一时刻内存中仅允许装载（Deploy）一个大语言模型。
+2. **端侧双运行时驱动**：
+   - **LiteRT LLM 运行时**（`RuntimeType.LITERT_LM`）：面向所有标准 Android/iOS 设备，使用 `com.google.ai.edge.litertlm` 直接载入本地 `.tflite` 模型，控制度高，完全离线。
+   - **Google AI Core 运行时**（`RuntimeType.AICORE`）：面向 Android 14+ 特定高端设备，通过 `com.google.mlkit.genai.prompt` 调用系统服务（Google Play Services），实现底层硬件级加速。
+3. **安全 OAuth 闭环生态**：
+   - 针对 Hugging Face 平台需要授权访问的 Gated 模型，系统集成 `AppAuth` 完成设备端 OAuth 2.0 安全认证。
+   - 获取的 access token 加密存入 DataStore，后续下载请求在 `DownloadWorker` 中自动附加认证头信息。
+
+### 核心数据模型 (Model.kt)
+
+```kotlin
+data class Model(
+    val name: String,                          // 唯一标识 (如 "gemma-3n-e2b-it")
+    val displayName: String,                   // 界面显示名称
+    val url: String,                           // Hugging Face 资源安全下载 URL
+    val sizeInBytes: Long,                     // 模型总字节大小 (用于进度校验)
+    val downloadFileName: String,              // 磁盘命名 (如 "model.tflite")
+    val version: String,                       // 内部版本号
+    val isLlm: Boolean = true,                 // 是否为大语言模型
+    val runtimeType: RuntimeType,              // 运行时类型: LITERT_LM 或 AICORE
+    val minDeviceMemoryInGb: Int? = null,      // 最低硬件内存约束
+    val localFileRelativeDirPathOverride: String? = null // adb 快速本地导入测试目录
+)
+
+enum class RuntimeType {
+    LITERT_LM, AICORE
+}
+```
+
+### 时序架构机制
+
+1. **配置允许列表**：应用从本地/远程读取并校验允许列表配置 `model_allowlist.json`。
+2. **安全下载**：
+   - 检查模型若为 Gated 模型，唤起 Hugging Face OAuth 网页，完成后将 `access_token` 保存到 `EncryptedDataStore`。
+   - `WorkManager` 后台调度 `DownloadWorker` 启动断点续传下载，写入外部存储应用私有路径：
+     `/storage/emulated/0/Android/data/com.butler.app/files/{normalizedName}/{version}/`
+3. **内存部署/装载 (Deployment)**：
+   - 用户进入功能页，触发 `LlmModelHelper.initialize()`。
+   - **LiteRT**: 读取本地文件及 `extra_data` 下的 Tokenizer，创建 `Session`，调用 `warmup` 完成就绪。
+   - **AI Core**: 唤起系统层下载流，通过 `GenerativeModel` 绑定。
+4. **零延迟 WebMessagePort 推理流桥接**：
+   - 在 `MainActivity.kt` 初始化时，主动调用 `createWebMessageChannel()` 创建双向零拷贝原生通信管道 `WebMessagePort`。
+   - 流式生成 token 时，底层 `resultListener` 逐片段分发回调，不调用高消耗的 `evaluateJavascript`，而是直接通过 `nativePort.postMessage` 秒级推送到前端 Web 侧，彻底避免 GC 帧率抖动与主线程阻塞。
+
+### 部署对比表
+
+| 维度 | LiteRT LLM 运行时 (`LITERT_LM`) | Google AI Core 运行时 (`AICORE`) |
+|---|---|---|
+| **最低版本** | Android 7.0+ | Android 14+ |
+| **底层依赖库** | `com.google.ai.edge.litertlm` | `com.google.mlkit.genai.prompt` |
+| **模型存储路径** | 外部沙盒私有路径 (完全隔离) | 系统级 AI Core 共享路径 (由 Play Services 管理) |
+| **启动 Warmup** | 手动执行 Session 推理预热 | 系统底座自动完成 |
+| **内存主动释放** | 需手动调用 `cleanUp()` 进行 C++ 指针销毁 | 托管给系统生命周期，后台低资源自动回收 |
+
+---
+
 ## 常见问题
 
 **Q: Vite 构建后页面空白？**

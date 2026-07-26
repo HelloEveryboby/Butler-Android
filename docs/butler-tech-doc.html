@@ -469,6 +469,7 @@ sup a:hover { text-decoration: underline; }
         <li><a href="#api">API 协议</a></li>
         <li><a href="#build">构建与部署</a></li>
         <li><a href="#platform">平台适配</a></li>
+        <li><a href="#edge-ai">本地模型下载与部署机制设计</a></li>
         <li><a href="#faq">常见问题</a></li>
         <li><a href="#issues">已知问题与改进</a></li>
     </ol>
@@ -1137,7 +1138,181 @@ butler-android/
     </table>
 </section>
 
-<!-- ======== 10. 常见问题 ======== -->
+<!-- ======== 10. 本地模型下载与部署机制设计 ======== -->
+<section class="section" id="edge-ai">
+    <h2>本地模型下载与部署机制设计</h2>
+    <p>为实现真正的<mark class="key">离线优先 (Offline First)</mark>与数据不出设备的隐私保护，Butler AI 基于 <code>google-ai-edge/gallery</code> 的核心设计，针对 Hybrid 跨平台架构（Android 主机容器 + Capacitor 桥接 + Go 核心 + Python 插件层）设计了一套端侧大模型下载、授权校验、多运行时部署与流式推理的管理机制。</p>
+
+    <h3>10.1 核心设计理念</h3>
+    <ul>
+        <li><strong>下载与部署分离</strong>：后台下载（DownloadWorker 调度）与内存装载（Initialization）解耦。用户可同时下载多模型，但同一时间内仅允许一个大模型装载入内存。</li>
+        <li><strong>端侧双运行时驱动</strong>：
+            <ul>
+                <li><code>LiteRT LLM Runtime</code>：针对通用 Android/iOS 设备，使用 <code>com.google.ai.edge.litertlm</code> 库直接加载本地下载的 <code>.tflite</code> 格式模型。</li>
+                <li><code>Google AI Core Runtime</code>：针对 Android 14+ / Pixel 系列等内置 AI Core 芯片的设备，通过 <code>com.google.mlkit.genai.prompt</code> 系统级调用，自动激活硬件加速与系统自管下载。</li>
+            </ul>
+        </li>
+        <li><strong>OAuth 2.0 闭环生态</strong>：支持 Hugging Face 等平台 Gated 模型的安全认证与存储，直接通过 AppAuth 获取安全 token。</li>
+    </ul>
+
+    <h3>10.2 系统架构与时序机制</h3>
+    <figure class="diagram-wrapper">
+        <figcaption>图 4 &mdash; 端侧大模型下载、部署与推理全链路数据流</figcaption>
+        <svg viewBox="0 0 850 500" xmlns="http://www.w3.org/2000/svg" style="max-width:800px;width:100%;">
+            <!-- Elements Background -->
+            <rect x="10" y="10" width="830" height="480" rx="16" fill="#F8FAFC" stroke="#E2E8F0" stroke-width="1.5"/>
+
+            <!-- Lanes -->
+            <line x1="170" y1="20" x2="170" y2="470" stroke="#CBD5E1" stroke-dasharray="5 5"/>
+            <line x1="390" y1="20" x2="390" y2="470" stroke="#CBD5E1" stroke-dasharray="5 5"/>
+            <line x1="610" y1="20" x2="610" y2="470" stroke="#CBD5E1" stroke-dasharray="5 5"/>
+
+            <!-- Headers -->
+            <text x="90" y="35" font-size="12" fill="#475569" font-weight="bold" text-anchor="middle" font-family="sans-serif">Capacitor 前端 (Web)</text>
+            <text x="280" y="35" font-size="12" fill="#475569" font-weight="bold" text-anchor="middle" font-family="sans-serif">MainActivity / Native Bridge</text>
+            <text x="500" y="35" font-size="12" fill="#475569" font-weight="bold" text-anchor="middle" font-family="sans-serif">Chaquopy (Python Runtime)</text>
+            <text x="720" y="35" font-size="12" fill="#475569" font-weight="bold" text-anchor="middle" font-family="sans-serif">Go Core / External SDKs</text>
+
+            <!-- 1. Download flow -->
+            <rect x="25" y="60" width="130" height="40" rx="8" fill="#EFF6FF" stroke="#3B82F6" stroke-width="1.5"/>
+            <text x="90" y="85" font-size="11" fill="#1D4ED8" text-anchor="middle" font-family="sans-serif">1. 触发模型下载</text>
+
+            <path d="M 155 80 L 195 80" stroke="#3B82F6" stroke-width="1.5" fill="none" marker-end="url(#arrowBlue)"/>
+
+            <rect x="200" y="60" width="160" height="50" rx="8" fill="#F1F5F9" stroke="#64748B"/>
+            <text x="280" y="80" font-size="11" fill="#334155" text-anchor="middle" font-family="sans-serif">DownloadRepository</text>
+            <text x="280" y="95" font-size="9" fill="#64748B" text-anchor="middle" font-family="sans-serif">(WorkManager + HTTPS)</text>
+
+            <path d="M 360 85 L 635 85" stroke="#64748B" stroke-width="1.5" fill="none" marker-end="url(#arrowSlate)"/>
+
+            <rect x="640" y="60" width="160" height="50" rx="8" fill="#ECFDF5" stroke="#10B981"/>
+            <text x="720" y="80" font-size="11" fill="#047857" text-anchor="middle" font-family="sans-serif">Hugging Face</text>
+            <text x="720" y="95" font-size="9" fill="#10B981" text-anchor="middle" font-family="sans-serif">(OAuth 2.0 Auth Stream)</text>
+
+            <path d="M 720 110 L 720 150 L 330 150 L 330 180" stroke="#10B981" stroke-dasharray="3 3" stroke-width="1.5" fill="none" marker-end="url(#arrowGreen)"/>
+
+            <!-- 2. Path & Storage -->
+            <rect x="240" y="180" width="180" height="50" rx="8" fill="#FFFBEB" stroke="#D97706"/>
+            <text x="330" y="200" font-size="11" fill="#92400E" text-anchor="middle" font-family="sans-serif">安全存储 (ExternalFilesDir)</text>
+            <text x="330" y="215" font-size="9" fill="#B45309" text-anchor="middle" font-family="sans-serif">/{normalized_name}/{version}/model.tflite</text>
+
+            <!-- 3. Deployment Flow -->
+            <rect x="25" y="250" width="130" height="40" rx="8" fill="#FDF4FF" stroke="#D946EF" stroke-width="1.5"/>
+            <text x="90" y="275" font-size="11" fill="#A21CAF" text-anchor="middle" font-family="sans-serif">2. 初始化/装载请求</text>
+
+            <path d="M 155 270 L 415 270" stroke="#D946EF" stroke-width="1.5" fill="none" marker-end="url(#arrowMagenta)"/>
+
+            <rect x="420" y="250" width="160" height="50" rx="8" fill="#FFF5F5" stroke="#F87171"/>
+            <text x="500" y="270" font-size="11" fill="#991B1B" text-anchor="middle" font-family="sans-serif">LlmModelHelper (SDK)</text>
+            <text x="500" y="285" font-size="9" fill="#EF4444" text-anchor="middle" font-family="sans-serif">LiteRT / AI Core 动态适配</text>
+
+            <path d="M 580 275 L 635 275" stroke="#F87171" stroke-width="1.5" fill="none" marker-end="url(#arrowRed)"/>
+
+            <rect x="640" y="250" width="160" height="50" rx="8" fill="#EEF2FF" stroke="#4F46E5"/>
+            <text x="720" y="270" font-size="11" fill="#3730A3" text-anchor="middle" font-family="sans-serif">GPU/NPU 加速会话</text>
+            <text x="720" y="285" font-size="9" fill="#6366F1" text-anchor="middle" font-family="sans-serif">Session Warmup 完成</text>
+
+            <path d="M 640 285 L 340 285 C 320 285, 320 330, 290 330" stroke="#4F46E5" stroke-dasharray="3 3" stroke-width="1.5" fill="none" marker-end="url(#arrowBlue)"/>
+
+            <!-- 4. Inference & streaming -->
+            <rect x="200" y="330" width="180" height="50" rx="8" fill="#EFF6FF" stroke="#3B82F6" stroke-width="1.5"/>
+            <text x="290" y="350" font-size="11" fill="#1D4ED8" text-anchor="middle" font-weight="bold" font-family="sans-serif">3. 实时推理 (runInference)</text>
+            <text x="290" y="365" font-size="9" fill="#1E40AF" text-anchor="middle" font-family="sans-serif">多模态: 文本 + 图像 + 音频</text>
+
+            <path d="M 380 355 L 415 355" stroke="#3B82F6" stroke-width="1.5" fill="none" marker-end="url(#arrowBlue)"/>
+
+            <path d="M 500 300 L 500 370" stroke="#F87171" stroke-width="1.5" fill="none" marker-end="url(#arrowRed)"/>
+
+            <rect x="420" y="370" width="160" height="50" rx="8" fill="#F5F3FF" stroke="#8B5CF6"/>
+            <text x="500" y="390" font-size="11" fill="#5B21B6" text-anchor="middle" font-family="sans-serif">Streaming Token 回调</text>
+            <text x="500" y="405" font-size="9" fill="#7C3AED" text-anchor="middle" font-family="sans-serif">resultListener 流处理</text>
+
+            <path d="M 420 395 L 140 395 C 100 395, 100 350, 90 330" stroke="#8B5CF6" stroke-width="1.5" fill="none" marker-end="url(#arrowPurple)"/>
+
+            <rect x="25" y="300" width="130" height="30" rx="6" fill="#F5F3FF" stroke="#8B5CF6"/>
+            <text x="90" y="318" font-size="10" fill="#5B21B6" text-anchor="middle" font-family="sans-serif">WebMessagePort 实时渲染</text>
+
+            <!-- Arrow Definitions -->
+            <defs>
+                <marker id="arrowBlue" markerWidth="6" markerHeight="6" refX="5" refY="3" orient="auto"><polygon points="0 0, 6 3, 0 6" fill="#3B82F6"/></marker>
+                <marker id="arrowSlate" markerWidth="6" markerHeight="6" refX="5" refY="3" orient="auto"><polygon points="0 0, 6 3, 0 6" fill="#64748B"/></marker>
+                <marker id="arrowGreen" markerWidth="6" markerHeight="6" refX="5" refY="3" orient="auto"><polygon points="0 0, 6 3, 0 6" fill="#10B981"/></marker>
+                <marker id="arrowMagenta" markerWidth="6" markerHeight="6" refX="5" refY="3" orient="auto"><polygon points="0 0, 6 3, 0 6" fill="#D946EF"/></marker>
+                <marker id="arrowRed" markerWidth="6" markerHeight="6" refX="5" refY="3" orient="auto"><polygon points="0 0, 6 3, 0 6" fill="#F87171"/></marker>
+                <marker id="arrowPurple" markerWidth="6" markerHeight="6" refX="5" refY="3" orient="auto"><polygon points="0 0, 6 3, 0 6" fill="#8B5CF6"/></marker>
+            </defs>
+        </svg>
+    </figure>
+
+    <h3>10.3 关键数据模型定义</h3>
+    <pre><code><span class="code-comment">// Android 侧 Kotlin 端模型实体类 Model.kt</span>
+<span class="code-keyword">data class</span> <span class="code-type">Model</span>(
+    <span class="code-keyword">val</span> name: <span class="code-type">String</span>,                         <span class="code-comment">// 唯一 ID (例如 "gemma-3n-e2b-it")</span>
+    <span class="code-keyword">val</span> displayName: <span class="code-type">String</span>,                  <span class="code-comment">// 显示名称</span>
+    <span class="code-keyword">val</span> url: <span class="code-type">String</span>,                          <span class="code-comment">// Hugging Face 或其他安全源下载 URL</span>
+    <span class="code-keyword">val</span> sizeInBytes: <span class="code-type">Long</span>,                    <span class="code-comment">// 字节大小 (用于后台进度监控)</span>
+    <span class="code-keyword">val</span> downloadFileName: <span class="code-type">String</span>,             <span class="code-comment">// 磁盘存储文件名 (xxx.tflite)</span>
+    <span class="code-keyword">val</span> version: <span class="code-type">String</span>,                      <span class="code-comment">// 版本标识</span>
+    <span class="code-keyword">val</span> runtimeType: <span class="code-type">RuntimeType</span>,            <span class="code-comment">// LITERT_LM 或 AICORE</span>
+    <span class="code-keyword">val</span> isLlm: <span class="code-type">Boolean</span> = <span class="code-keyword">true</span>,
+    <span class="code-keyword">val</span> minDeviceMemoryInGb: <span class="code-type">Int</span>? = <span class="code-keyword">null</span>,     <span class="code-comment">// 最低内存硬件约束校验</span>
+    <span class="code-keyword">val</span> localFileRelativeDirPathOverride: <span class="code-type">String</span>? = <span class="code-keyword">null</span> <span class="code-comment">// adb 手动快速导入调试目录</span>
+)
+
+<span class="code-keyword">enum class</span> <span class="code-type">RuntimeType</span> {
+    LITERT_LM,  <span class="code-comment">// 针对全类型端侧 TFLite 的 LITE RT 基础引擎</span>
+    AICORE      <span class="code-comment">// 针对 Android 14+ 特定设备的 AI Core 专用加速引擎</span>
+}</code></pre>
+
+    <h3>10.4 零延迟 WebMessagePort 桥接机制</h3>
+    <p>为了在流式（Streaming）生成 token 时，避免传统 Javascript 桥接 <code>evaluateJavascript</code> 高频率调用导致的垃圾回收（GC）抖动与主线程阻塞，Butler 设计了基于 <code>WebMessagePort</code> 的双向常连通道传递推理片段：</p>
+    <pre><code><span class="code-comment">// MainActivity.kt 建立零拷贝原生通信管道</span>
+<span class="code-keyword">private fun</span> <span class="code-func">setupWebMessageChannel</span>() {
+    <span class="code-keyword">if</span> (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.M) {
+        <span class="code-keyword">val</span> channel = webView.createWebMessageChannel()
+        nativePort = channel[0]
+        nativePort?.setWebMessageCallback(<span class="code-keyword">object</span> : WebMessagePort.WebMessageCallback() {
+            <span class="code-keyword">override fun</span> <span class="code-func">onMessage</span>(port: WebMessagePort?, message: WebMessage?) {
+                <span class="code-comment">// 接收 Web 侧下发的控制信令 (例如：中断执行 stopResponse)</span>
+                handleWebSignal(message?.data)
+            }
+        })
+        <span class="code-comment">// 将 port[1] 转移至前端页面持有，完成闭环</span>
+        webView.postWebMessage(WebMessage(<span class="code-string">"init_bridge"</span>, arrayOf(channel[1])), Uri.parse(<span class="code-string">"https://appassets.androidplatform.net"</span>))
+    }
+}</code></pre>
+
+    <h3>10.5 安全校验与 Gated OAuth</h3>
+    <p>针对 Hugging Face 托管的 Gated 模型（必须认证授权后才可下载），系统集成了 <code>AppAuth</code> 安全框架在设备端完成 OAuth 登录，并使用 Android 加密 DataStore（Encrypted DataStore）妥善存储 access token，在 DownloadWorker 发起 HTTPS 请求时，自动附加 HTTP Header 进行认证：</p>
+    <pre><code><span class="code-keyword">val</span> request = Request.Builder()
+    .url(model.url)
+    .addHeader(<span class="code-string">"Authorization"</span>, <span class="code-string">"Bearer $savedToken"</span>)
+    .build()</code></pre>
+
+    <h3>10.6 部署（Deploy）与装载流程对比</h3>
+    <table>
+        <thead>
+            <tr><th>阶段</th><th>LiteRT LLM 运行时</th><th>Google AI Core 运行时</th></tr>
+        </thead>
+        <tbody>
+            <tr><td><strong>首要条件</strong></td><td>本地下载的 .tflite 模型文件就绪</td><td>设备支持 Android 14+ 并集成系统服务</td></tr>
+            <tr><td><strong>核心加载逻辑</strong></td><td>
+                1. 从本地沙盒路径载入权重文件<br>
+                2. 加载 extra_data 内的 Tokenizer 规则<br>
+                3. 创建 <code>com.google.ai.edge.litertlm.Session</code> 实例<br>
+                4. 配置加速硬件并进行一次 Warmup 预热
+            </td><td>
+                1. 通过 API 触发 Google Play Services 系统下载服务<br>
+                2. 订阅 <code>DownloadStatus</code> 获取全局分发进度<br>
+                3. 由系统级 AI Core 内存驻留分配实例<br>
+                4. 绑定原生 <code>GenerativeModel</code>
+            </td></tr>
+            <tr><td><strong>内存释放机制</strong></td><td>调用 <code>cleanUp()</code> 彻底关闭 C++ 层的 Session 指针</td><td>系统自动接管 AI Core 生命周期并在进程低内存时主动回收</td></tr>
+        </tbody>
+    </table>
+</section>
+
+<!-- ======== 11. 常见问题 ======== -->
 <section class="section" id="faq">
     <h2>常见问题</h2>
 
