@@ -1,6 +1,9 @@
 /**
  * Butler Memos 备忘录空间 - 前端交互核心 (JS)
  * 高级升级版：支持原地编辑、多模态渲染、AI智能提取、瀑布流画廊、时光网络与 Cyberpunk/Apple 主题融合
+ *
+ * 深度交互增强：卡片空白点击自适应展开/折叠、全选/多选状态切换、行内修改状态和标签、批量删除动作条、
+ * 全部打通 Python 向量后端的 SQLite 数据库持久化服务。
  */
 
 class MemosManager {
@@ -22,12 +25,18 @@ class MemosManager {
         this.unpinnedMemos = [];
         this.archivedMemos = [];
 
+        // Interactive states
         this.viewMode = 'list'; // 'list', 'gallery', 'spatial'
         this.showArchivedOnly = false;
         this.currentEditingMemoId = null; // null for new memo, numeric id for edit
         this.allUniqueTags = [];
         this.aiPredictedTags = [];
         this.tagPredictTimeout = null;
+
+        // New upgraded states
+        this.expandedIds = new Set();
+        this.selectionMode = false;
+        this.selectedIds = new Set();
 
         this.init();
 
@@ -187,6 +196,19 @@ class MemosManager {
                 }
             });
         });
+
+        // Blank area click to toggle card expansion (skipping interactive sub-elements)
+        document.addEventListener('click', (e) => {
+            const card = e.target.closest('.memo-card');
+            if (!card) return;
+            if (e.target.closest('.action-bar') || e.target.closest('.btn-expand-toggle') ||
+                e.target.closest('.badge') || e.target.closest('.editable-value') ||
+                e.target.closest('.tag') || e.target.closest('.memo-resource-grid') ||
+                e.target.closest('.image-gallery') || e.target.closest('.card-checkbox') ||
+                e.target.closest('.memo-link-card')) return;
+            const toggleBtn = card.querySelector('.btn-expand-toggle');
+            if (toggleBtn) this.toggleExpand(toggleBtn);
+        });
     }
 
     async refreshMemos() {
@@ -270,7 +292,7 @@ class MemosManager {
 
     sanitize(text) {
         const div = document.createElement('div');
-        div.textContent = text;
+        div.textContent = text || '';
         return div.innerHTML;
     }
 
@@ -305,6 +327,12 @@ class MemosManager {
         if (!container) return;
         container.innerHTML = '';
 
+        if (this.selectionMode) {
+            container.classList.add('selection-mode');
+        } else {
+            container.classList.remove('selection-mode');
+        }
+
         if (isGallery) {
             container.style.columnCount = memos.length > 1 ? '2' : '1';
             container.style.columnGap = '15px';
@@ -318,11 +346,21 @@ class MemosManager {
             return;
         }
 
+        // 如果没有卡片展开且存在卡片，默认展开第一个
+        if (memos.length > 0 && this.expandedIds.size === 0) {
+            this.expandedIds.add(String(memos[0].id));
+        }
+
         memos.forEach(memo => {
+            const memoId = String(memo.id);
+            const isExpanded = this.expandedIds.has(memoId);
+            const isSelected = this.selectedIds.has(memoId);
+
             const card = document.createElement('div');
-            card.className = `memo-card ${memo.is_pinned ? 'pinned-active' : ''}`;
+            card.className = `memo-card ${memo.is_pinned ? 'pinned-active' : ''} ${isExpanded ? 'expanded' : ''} ${isSelected ? 'selected' : ''}`;
             card.style.breakInside = 'avoid';
             card.style.marginBottom = '15px';
+            card.dataset.id = memoId;
 
             const date = new Date(memo.created_at * 1000).toLocaleString();
             let renderedContent = window.marked ? window.marked.parse(memo.content) : this.sanitize(memo.content);
@@ -336,7 +374,6 @@ class MemosManager {
             let linkCardsHtml = '';
             if (urls && urls.length > 0) {
                 urls.forEach(url => {
-                    // Only strip trailing punctuation marks like dots, brackets or parentheses
                     const cleanUrl = this.sanitize(url.replace(/[)\].,;!]+$/, ""));
                     linkCardsHtml += `
                         <div class="memo-link-card glass-surface" onclick="window.pywebview ? window.pywebview.api.open_office('${cleanUrl}') : window.open('${cleanUrl}', '_blank')" style="cursor: pointer; padding: 10px; border-radius: 8px; margin-top: 10px; display: flex; align-items: center; gap: 10px; border: 1px solid var(--border-color); background: rgba(255,255,255,0.02);">
@@ -350,7 +387,7 @@ class MemosManager {
                 });
             }
 
-            // Multi-modal Previews
+            // Multi-modal Previews / Resources
             let resHtml = '';
             if (memo.resources && memo.resources.length > 0) {
                 resHtml = '<div class="memo-resource-grid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(100px, 1fr)); gap: 8px; margin-top: 12px;">';
@@ -360,14 +397,12 @@ class MemosManager {
                     const cleanRes = this.sanitize(res);
 
                     if (['png', 'jpg', 'jpeg', 'webp', 'gif'].includes(ext)) {
-                        // Image Thumbnail
                         resHtml += `
                             <div class="resource-item image-preview" onclick="window.memosManager.openLightbox('${cleanRes}')" style="cursor: zoom-in; position: relative; border-radius: 8px; overflow: hidden; height: 90px; border: 1px solid var(--border-color);">
                                 <img src="${cleanRes}" style="width: 100%; height: 100%; object-fit: cover;">
                             </div>
                         `;
                     } else if (['mp3', 'wav', 'ogg', 'm4a'].includes(ext)) {
-                        // Embedded native audio controller
                         resHtml += `
                             <div class="resource-item audio-preview" style="grid-column: span 2; background: rgba(0,122,255,0.06); padding: 8px; border-radius: 8px; border: 1px solid rgba(0,122,255,0.15);">
                                 <div style="font-size: 10px; color: var(--accent-color); margin-bottom: 4px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;"><i class="fas fa-microphone"></i> 语音附件: ${this.sanitize(filename)}</div>
@@ -375,14 +410,12 @@ class MemosManager {
                             </div>
                         `;
                     } else if (['mp4', 'webm', 'mov'].includes(ext)) {
-                        // Embedded native video poster player
                         resHtml += `
                             <div class="resource-item video-preview" style="grid-column: span 2; border-radius: 8px; overflow: hidden; border: 1px solid var(--border-color);">
                                 <video src="${cleanRes}" controls poster="" style="width: 100%; max-height: 150px; background: #000; object-fit: contain;"></video>
                             </div>
                         `;
                     } else {
-                        // Document file download badge
                         resHtml += `
                             <div class="resource-item doc-badge" onclick="window.pywebview ? window.pywebview.api.open_office('${cleanRes}') : null" style="padding: 10px; font-size: 11px; border-radius: 8px; background: rgba(255,255,255,0.03); border: 1px solid var(--border-color); display: flex; align-items: center; gap: 8px;">
                                 <i class="fas fa-file-alt" style="color: var(--accent-color); font-size: 16px;"></i>
@@ -392,27 +425,55 @@ class MemosManager {
                     }
                 });
                 resHtml += '</div>';
+            } else {
+                resHtml = `<div class="image-gallery"><span class="no-image">暂无附件图片</span></div>`;
             }
 
-            const tagsHtml = memo.tags.map(t => `<span class="tag-item" style="cursor: pointer;" onclick="window.memosManager.filterByTag('${this.sanitize(t)}')">${this.sanitize(t)}</span>`).join('');
+            const titleText = this.sanitize(memo.title || `📌 备忘录 #${memoId}`);
+            const tagText = this.sanitize(memo.tags[0] || '日常');
+            const previewText = this.sanitize(memo.content.replace(/[#*`_\[\]]/g, '').slice(0, 50) + (memo.content.length > 50 ? '...' : ''));
+            const statusVal = this.sanitize(memo.status || '进行中');
+            const tagsJoinText = this.sanitize((memo.tags || []).join(' ') || '分类');
 
             card.innerHTML = `
-                <div class="memo-card-header" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
-                    <span class="memo-time" style="font-size: 11px; color: var(--text-secondary); font-family: monospace;">${this.sanitize(date)}</span>
-                    <div class="memo-card-actions" style="display: flex; gap: 4px;">
-                        <button class="icon-btn-small" onclick="window.memosManager.editMemoInPlace(${memo.id})" title="编辑备忘"><i class="fas fa-edit"></i></button>
-                        <button class="icon-btn-small" onclick="window.memosManager.togglePinStatus(${memo.id}, ${memo.is_pinned})" title="${memo.is_pinned ? '取消置顶' : '置顶备忘'}" style="color: ${memo.is_pinned ? 'var(--accent-color)' : ''};"><i class="fas fa-thumbtack" style="${memo.is_pinned ? 'transform: rotate(45deg);' : ''}"></i></button>
-                        <button class="icon-btn-small" onclick="window.memosManager.toggleArchiveStatus(${memo.id}, ${memo.is_archived})" title="${memo.is_archived ? '激活' : '归档备忘'}" style="color: ${memo.is_archived ? '#FF9500' : ''};"><i class="fas fa-archive"></i></button>
-                        <button class="icon-btn-small" onclick="window.memosManager.deleteMemo(${memo.id})" title="彻底删除" style="color: #FF3B30;"><i class="fas fa-trash-alt"></i></button>
+                <div class="card-header" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+                    <div class="note-title">
+                        <input type="checkbox" class="card-checkbox" onchange="window.memosManager.toggleSelect('${memoId}', this)" ${isSelected ? 'checked' : ''} />
+                        ${titleText}
+                        <span class="tag" onclick="window.memosManager.editTag(this, '${memoId}')">${tagText}</span>
                     </div>
+                    <div class="note-date">${this.sanitize(date)}</div>
                 </div>
-                <div class="memo-card-content" onclick="window.memosManager.showMemoDetail(${JSON.stringify(memo).replace(/"/g, '&quot;')})" style="cursor: pointer;">${renderedContent}</div>
-                ${linkCardsHtml}
-                ${resHtml}
-                <div class="memo-tags" style="margin-top: 10px; display: flex; flex-wrap: wrap; gap: 5px;">${tagsHtml}</div>
+                <div class="note-preview">${previewText}</div>
+                <div class="extra-details">
+                    <p><i class="fas fa-check-circle"></i> 状态：<span class="badge" onclick="window.memosManager.editStatus('${memoId}', this)">${statusVal}</span></p>
+                    <p><i class="fas fa-tag"></i> 标签：<span class="editable-value" onclick="window.memosManager.editTagsInline('${memoId}', this)">${tagsJoinText}</span></p>
+                    <div class="markdown-content" style="margin-top: 12px; line-height: 1.6; color: var(--text-primary); font-size: 14px;">${renderedContent}</div>
+                    ${linkCardsHtml}
+                    ${resHtml}
+                </div>
+                <div class="action-bar">
+                    <button class="btn-memo btn-done" onclick="window.memosManager.markDone('${memoId}')">
+                        <i class="fas fa-check"></i> 完成
+                    </button>
+                    <button class="btn-memo btn-image" onclick="window.memosManager.uploadImage('${memoId}')">
+                        <i class="fas fa-image"></i> 图片
+                    </button>
+                    <button class="btn-memo btn-edit-memo" onclick="window.memosManager.editMemoTitleAndContent('${memoId}')">
+                        <i class="fas fa-pencil-alt"></i> 编辑
+                    </button>
+                    <button class="btn-memo btn-delete-memo" onclick="window.memosManager.deleteMemo('${memoId}')">
+                        <i class="fas fa-trash-alt"></i>
+                    </button>
+                    <button class="btn-expand-toggle" onclick="window.memosManager.toggleExpand(this)">
+                        <i class="fas ${isExpanded ? 'fa-chevron-up' : 'fa-chevron-down'}"></i> <span>${isExpanded ? '收起' : '详情'}</span>
+                    </button>
+                </div>
             `;
             container.appendChild(card);
         });
+
+        this.updateBatchInfo();
     }
 
     renderSpatialView() {
@@ -647,12 +708,15 @@ class MemosManager {
                 window.showToast("更新备忘", "备忘录修缮成功！", "success");
             } else {
                 // Creating new memo
-                await window.pywebview.api.call_skill("memos", "add", {
+                const res = await window.pywebview.api.call_skill("memos", "add", {
                     content: content,
                     tags: tags,
                     base64_files: this.pendingFiles
                 });
                 window.showToast("保存备忘", "新灵感已存入备忘脑库中。", "success");
+                if (res && res.id) {
+                    this.expandedIds.add(String(res.id));
+                }
             }
 
             this.clearEditor();
@@ -761,9 +825,244 @@ class MemosManager {
         try {
             await window.pywebview.api.call_skill("memos", "delete", { id });
             window.showToast("备忘删除", "备忘录已安全清除。", "success");
+            this.expandedIds.delete(String(id));
             this.refreshMemos();
         } catch (e) {
             console.error(e);
+        }
+    }
+
+    // --- Upgraded Memos UI Methods ---
+
+    toggleSelectionMode() {
+        this.selectionMode = !this.selectionMode;
+        if (!this.selectionMode) {
+            this.selectedIds.clear();
+            document.getElementById('memos-batch-bar')?.classList.remove('visible');
+        } else {
+            document.getElementById('memos-batch-bar')?.classList.add('visible');
+        }
+        const btn = document.getElementById('memos-select-btn');
+        if (btn) {
+            btn.classList.toggle('active', this.selectionMode);
+            btn.innerHTML = this.selectionMode ? '<i class="fas fa-times"></i> 取消' : '<i class="fas fa-check-double"></i> 选择';
+        }
+        this.renderCurrentView();
+    }
+
+    cancelSelection() {
+        if (this.selectionMode) {
+            this.toggleSelectionMode();
+        }
+    }
+
+    toggleSelect(memoId, checkbox) {
+        memoId = String(memoId);
+        if (checkbox.checked) {
+            this.selectedIds.add(memoId);
+        } else {
+            this.selectedIds.delete(memoId);
+        }
+        const card = checkbox.closest('.memo-card');
+        if (card) {
+            card.classList.toggle('selected', checkbox.checked);
+        }
+        this.updateBatchInfo();
+    }
+
+    updateBatchInfo() {
+        const count = this.selectedIds.size;
+        const info = document.getElementById('memos-batch-info');
+        if (info) info.textContent = `已选择 ${count} 项`;
+        const deleteBtn = document.getElementById('memos-batch-delete-btn');
+        if (deleteBtn) deleteBtn.disabled = count === 0;
+    }
+
+    async deleteSelected() {
+        if (this.selectedIds.size === 0) return;
+        if (!confirm(`确定要永久删除选中的 ${this.selectedIds.size} 条备忘吗？此操作不可撤销！`)) return;
+
+        try {
+            for (const id of this.selectedIds) {
+                await window.pywebview.api.call_skill("memos", "delete", { id: parseInt(id) });
+            }
+            window.showToast("批量删除", "所选备忘录已安全清除。", "success");
+            this.selectedIds.clear();
+            this.expandedIds.clear();
+            if (this.selectionMode) {
+                this.toggleSelectionMode();
+            }
+            this.refreshMemos();
+        } catch (e) {
+            console.error(e);
+            window.showToast("删除失败", "交互异常", "error");
+        }
+    }
+
+    toggleExpand(btn) {
+        const card = btn.closest('.memo-card');
+        if (!card) return;
+        const id = String(card.dataset.id);
+        const isExpanded = card.classList.contains('expanded');
+        if (isExpanded) {
+            this.expandedIds.delete(id);
+        } else {
+            this.expandedIds.add(id);
+        }
+        card.classList.toggle('expanded');
+        const icon = btn.querySelector('i');
+        const span = btn.querySelector('span');
+        if (card.classList.contains('expanded')) {
+            if (span) span.innerText = '收起';
+            if (icon) icon.className = 'fas fa-chevron-up';
+        } else {
+            if (span) span.innerText = '详情';
+            if (icon) icon.className = 'fas fa-chevron-down';
+        }
+    }
+
+    async markDone(memoId) {
+        try {
+            await window.pywebview.api.call_skill("memos", "update", {
+                id: memoId,
+                status: "已完成"
+            });
+            window.showToast("状态更新", "任务已标记为已完成 ✅", "success");
+            this.expandedIds.add(String(memoId));
+            this.refreshMemos();
+        } catch (err) {
+            console.error(err);
+        }
+    }
+
+    uploadImage(memoId) {
+        const input = document.createElement('input');
+        input.type = 'file';
+        input.accept = 'image/*';
+        input.multiple = true;
+        input.onchange = (e) => {
+            const files = e.target.files;
+            if (!files || files.length === 0) return;
+            let loaded = 0;
+            const total = files.length;
+            const b64Files = [];
+            for (let i = 0; i < files.length; i++) {
+                const reader = new FileReader();
+                reader.onload = async (ev) => {
+                    b64Files.push({ name: files[i].name, data: ev.target.result });
+                    loaded++;
+                    if (loaded === total) {
+                        try {
+                            await window.pywebview.api.call_skill("memos", "update", {
+                                id: memoId,
+                                base64_files: b64Files
+                            });
+                            window.showToast("上传成功", "附件已成功上传并关联！", "success");
+                            this.expandedIds.add(String(memoId));
+                            this.refreshMemos();
+                        } catch (err) {
+                            console.error(err);
+                            window.showToast("上传失败", "上传交互异常", "error");
+                        }
+                    }
+                };
+                reader.readAsDataURL(files[i]);
+            }
+        };
+        input.click();
+    }
+
+    async editMemoTitleAndContent(memoId) {
+        const memo = this.currentMemos.find(m => String(m.id) === String(memoId));
+        if (!memo) return;
+
+        const titlePrompt = prompt("📝 请输入新标题：", memo.title || "");
+        if (titlePrompt === null) return;
+
+        const contentPrompt = prompt("📝 请修改内容：", memo.content || "");
+        if (contentPrompt === null) return;
+
+        try {
+            await window.pywebview.api.call_skill("memos", "update", {
+                id: memoId,
+                title: titlePrompt.trim(),
+                content: contentPrompt.trim()
+            });
+            window.showToast("编辑成功", "标题与内容已成功更新！", "success");
+            this.expandedIds.add(String(memoId));
+            this.refreshMemos();
+        } catch (err) {
+            console.error(err);
+        }
+    }
+
+    async editStatus(memoId, el) {
+        const current = el.textContent;
+        const newVal = prompt("✏️ 修改状态 (例如: 未开始 / 进行中 / 已完成 / 挂起)：", current);
+        if (newVal === null) return;
+        const trimmed = newVal.trim();
+        if (!trimmed) {
+            alert("状态不能为空！");
+            return;
+        }
+        try {
+            await window.pywebview.api.call_skill("memos", "update", {
+                id: memoId,
+                status: trimmed
+            });
+            window.showToast("状态修改", "状态修改成功！", "success");
+            this.expandedIds.add(String(memoId));
+            this.refreshMemos();
+        } catch (err) {
+            console.error(err);
+        }
+    }
+
+    async editTag(el, memoId) {
+        const current = el.textContent;
+        const newVal = prompt("✏️ 修改主分类/标签：", current);
+        if (newVal === null) return;
+        const trimmed = newVal.trim();
+        if (!trimmed) {
+            alert("标签不能为空！");
+            return;
+        }
+        const memo = this.currentMemos.find(m => String(m.id) === String(memoId));
+        let tags = memo ? [...memo.tags] : [];
+        if (tags.length > 0) {
+            tags[0] = trimmed;
+        } else {
+            tags = [trimmed];
+        }
+        try {
+            await window.pywebview.api.call_skill("memos", "update", {
+                id: memoId,
+                tags: tags
+            });
+            window.showToast("标签修改", "标签已成功更改！", "success");
+            this.expandedIds.add(String(memoId));
+            this.refreshMemos();
+        } catch (err) {
+            console.error(err);
+        }
+    }
+
+    async editTagsInline(memoId, el) {
+        const current = el.textContent;
+        const newVal = prompt("✏️ 修改所有标签 (空格分隔)：", current);
+        if (newVal === null) return;
+        const trimmed = newVal.trim();
+        const tags = trimmed ? trimmed.split(" ").map(t => t.trim()).filter(Boolean) : [];
+        try {
+            await window.pywebview.api.call_skill("memos", "update", {
+                id: memoId,
+                tags: tags
+            });
+            window.showToast("标签更改", "所有关联标签已成功修改！", "success");
+            this.expandedIds.add(String(memoId));
+            this.refreshMemos();
+        } catch (err) {
+            console.error(err);
         }
     }
 
