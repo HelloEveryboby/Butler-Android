@@ -1,0 +1,30 @@
+# Require the Capacitor pods helper so that assertDeploymentTarget and
+# related helper methods are available. This file is shipped with @capacitor/ios.
+require_relative '../../node_modules/@capacitor/ios/scripts/pods_helpers'
+
+# Note: Capacitor v8 officially requires iOS 15.0+.
+# The platform is set to 14.0 as requested; assertDeploymentTarget in the
+# post_install hook will upgrade individual pod targets to 15.0 as needed.
+platform :ios, '14.0'
+use_frameworks!
+
+# Uncomment to use binary frameworks (faster builds, requires generated frameworks)
+# use_binary_frameworks!
+
+target 'App' do
+  # Capacitor core + plugin pods (sourced from node_modules).
+  # These match the packages installed in package.json.
+  pod 'Capacitor', :path => '../../node_modules/@capacitor/ios'
+  pod 'CapacitorCordova', :path => '../../node_modules/@capacitor/ios'
+  pod 'CapacitorApp', :path => '../../node_modules/@capacitor/app'
+  pod 'CapacitorHaptics', :path => '../../node_modules/@capacitor/haptics'
+  pod 'CapacitorStatusBar', :path => '../../node_modules/@capacitor/status-bar'
+  pod 'CapacitorSplashScreen', :path => '../../node_modules/@capacitor/splash-screen'
+
+  # Add your custom Pods here
+end
+
+post_install do |installer|
+  # Ensure all Pods target a compatible deployment target.
+  assertDeploymentTarget(installer)
+end
