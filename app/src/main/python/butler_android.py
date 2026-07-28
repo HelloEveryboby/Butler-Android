@@ -9,7 +9,7 @@ logger = logging.getLogger("ButlerAndroid")
 
 skill_manager = None
 
-# Cache Java Log class globally at module-level to avoid expensive JNI lookup on hot-path stdout/stderr logging
+# Cache Java Log class globally at module-level
 try:
     from pybridge_java import jclass
     Log = jclass("android.util.Log")
@@ -25,49 +25,17 @@ def _set_android_context(context):
     global _android_app
     _android_app = context
 
-class LogStream:
-    def __init__(self, tag, is_stderr=False):
-        self.tag = tag
-        self.is_stderr = is_stderr
-        self.buffer = ""
-
-    def write(self, message):
-        self.buffer += message
-        while "\n" in self.buffer:
-            line, self.buffer = self.buffer.split("\n", 1)
-            if line.strip():
-                if Log is not None:
-                    if self.is_stderr:
-                        Log.e(self.tag, line)
-                    else:
-                        Log.i(self.tag, line)
-                else:
-                    # Fallback if running outside PyBridge (e.g. mock unit tests)
-                    if self.is_stderr:
-                        sys.__stderr__.write(line + "\n")
-                    else:
-                        sys.__stdout__.write(line + "\n")
-
-    def flush(self):
-        if self.buffer.strip():
-            if Log is not None:
-                if self.is_stderr:
-                    Log.e(self.tag, self.buffer)
-                else:
-                    Log.i(self.tag, self.buffer)
-            else:
-                if self.is_stderr:
-                    sys.__stderr__.write(self.buffer + "\n")
-                else:
-                    sys.__stdout__.write(self.buffer + "\n")
-            self.buffer = ""
 
 def redirect_streams():
+    """Redirect stdout/stderr to Android Logcat using PyBridge core module."""
     try:
-        sys.stdout = LogStream("Butler_Python", is_stderr=False)
-        sys.stderr = LogStream("Butler_Python", is_stderr=True)
+        from pybridge_java import install_logcat
+        install_logcat(tag="Butler_Python", log_level="INFO")
+        logger.info("stdout/stderr redirected to Logcat")
     except Exception as e:
-        logger.error(f"Failed to redirect streams: {e}")
+        # Fallback to inline implementation if core module unavailable
+        logger.error(f"Failed to install logcat redirect: {e}")
+        _redirect_streams_fallback()
 
 def initialize(files_dir=None):
     global skill_manager
@@ -120,3 +88,46 @@ def cleanup():
     global skill_manager
     if skill_manager:
         skill_manager.stop_monitoring()
+
+
+def _redirect_streams_fallback():
+    """Fallback logcat redirection if core module is unavailable."""
+
+    class _LogStream:
+        def __init__(self, tag, is_stderr=False):
+            self.tag = tag
+            self.is_stderr = is_stderr
+            self.buffer = ""
+
+        def write(self, message):
+            self.buffer += message
+            while "\n" in self.buffer:
+                line, self.buffer = self.buffer.split("\n", 1)
+                if line.strip():
+                    if Log is not None:
+                        if self.is_stderr:
+                            Log.e(self.tag, line)
+                        else:
+                            Log.i(self.tag, line)
+                    else:
+                        if self.is_stderr:
+                            sys.__stderr__.write(line + "\n")
+                        else:
+                            sys.__stdout__.write(line + "\n")
+
+        def flush(self):
+            if self.buffer.strip():
+                if Log is not None:
+                    if self.is_stderr:
+                        Log.e(self.tag, self.buffer)
+                    else:
+                        Log.i(self.tag, self.buffer)
+                else:
+                    if self.is_stderr:
+                        sys.__stderr__.write(self.buffer + "\n")
+                    else:
+                        sys.__stdout__.write(self.buffer + "\n")
+                self.buffer = ""
+
+    sys.stdout = _LogStream("Butler_Python", is_stderr=False)
+    sys.stderr = _LogStream("Butler_Python", is_stderr=True)
