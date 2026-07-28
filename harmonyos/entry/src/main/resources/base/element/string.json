@@ -1,0 +1,8 @@
+{
+  "string": [
+    { "name": "module_desc", "value": "Butler AI 智能管家" },
+    { "name": "EntryAbility_desc", "value": "Butler AI" },
+    { "name": "EntryAbility_label", "value": "Butler" },
+    { "name": "app_name", "value": "Butler" }
+  ]
+}
