@@ -14,7 +14,7 @@ logger = logging.getLogger("SkillSDK")
 _throttle_interval = 0.0
 
 def trigger_global_throttling(active: bool):
-    """Called by Java/Kotlin side via Chaquopy when thermal/battery thresholds are hit."""
+    """Called by Java/Kotlin side via PyBridge jclass bridge when thermal/battery thresholds are hit."""
     global _throttle_interval
     _throttle_interval = 0.05 if active else 0.0
     logger.info(f"Mobile DRAS: Throttling set to {active} (interval={_throttle_interval})")
@@ -45,22 +45,25 @@ def _inject_event_loop_throttling():
         logger.info("Mobile DRAS: Event loop throttling injected.")
 
 class NativeOCR:
-    """Bridges to Android ML Kit via Chaquopy Java Bridge."""
+    """Bridges to Android ML Kit via PyBridge Java Bridge."""
     @staticmethod
     def recognize_text(image_path: str) -> str:
         try:
-            from java import jclass
+            from pybridge_java import jclass
             import time
-            # ML Kit Text Recognition usage via Chaquopy
+            # ML Kit Text Recognition usage via PyBridge
             TextRecognition = jclass("com.google.mlkit.vision.text.TextRecognition")
             TextRecognizerOptions = jclass("com.google.mlkit.vision.text.latin.TextRecognizerOptions")
             InputImage = jclass("com.google.mlkit.vision.common.InputImage")
             File = jclass("java.io.File")
             Uri = jclass("android.net.Uri")
-            Python = jclass("com.chaquo.python.Python")
+
+            # Get Android Application context from butler_android module
+            from butler_android import _android_app
+            context = _android_app
 
             recognizer = TextRecognition.getClient(TextRecognizerOptions.DEFAULT_OPTIONS)
-            image = InputImage.fromFilePath(Python.getPlatform().getApplication(),
+            image = InputImage.fromFilePath(context,
                                            Uri.fromFile(File(image_path)))
 
             # ML Kit process returns a Task object

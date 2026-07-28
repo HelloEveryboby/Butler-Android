@@ -11,10 +11,19 @@ skill_manager = None
 
 # Cache Java Log class globally at module-level to avoid expensive JNI lookup on hot-path stdout/stderr logging
 try:
-    from java import jclass
+    from pybridge_java import jclass
     Log = jclass("android.util.Log")
 except ImportError:
     Log = None
+
+# Store Android Application context for PyBridge Java interop
+_android_app = None
+
+
+def _set_android_context(context):
+    """Store Android Application context for Java interop (called from Kotlin)."""
+    global _android_app
+    _android_app = context
 
 class LogStream:
     def __init__(self, tag, is_stderr=False):
@@ -33,7 +42,7 @@ class LogStream:
                     else:
                         Log.i(self.tag, line)
                 else:
-                    # Fallback if running outside Chaquopy (e.g. mock unit tests)
+                    # Fallback if running outside PyBridge (e.g. mock unit tests)
                     if self.is_stderr:
                         sys.__stderr__.write(line + "\n")
                     else:
@@ -64,7 +73,7 @@ def initialize(files_dir=None):
     global skill_manager
     # Use provided files_dir or fallback to platform standard
     if not files_dir:
-        files_dir = os.environ.get("CHAKUOPY_FILES_DIR", "/data/data/com.butler.app/files")
+        files_dir = "/data/data/com.butler.app/files"
 
     skills_path = os.path.join(files_dir, "skills")
 
@@ -86,7 +95,7 @@ def call_plugin(skill_id, action, params_json):
 
     try:
         params = json.loads(params_json)
-        # Execute skill via Chaquopy and return structured result
+        # Execute skill via PyBridge and return structured result
         result = skill_manager.execute(skill_id, action, **params)
         return json.dumps({
             "status": "success",

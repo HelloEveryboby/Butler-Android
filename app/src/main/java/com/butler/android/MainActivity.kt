@@ -17,8 +17,8 @@ import android.webkit.WebView
 import android.webkit.WebViewClient
 import androidx.appcompat.app.AppCompatActivity
 import androidx.webkit.WebViewAssetLoader
-import com.chaquo.python.Python
-import com.chaquo.python.PyObject
+import com.pybridge.core.Python
+import com.pybridge.core.PyObject
 import android.util.Log
 import org.json.JSONObject
 import java.io.File
@@ -57,10 +57,10 @@ class MainActivity : AppCompatActivity() {
             startService(serviceIntent)
         }
 
-        // Initialize Python & SkillManager
-        val py = Python.getInstance()
-        butlerModule = py.getModule("butler_android")
+        // Initialize Python & SkillManager via PyBridge
+        butlerModule = Python.module("butler_android")
         butlerModule?.callAttr("initialize", filesDir.absolutePath)
+        butlerModule?.callAttr("_set_android_context", applicationContext)
 
         // Initialize Model Download Repository
         downloadRepository = DownloadRepository(this)
@@ -179,7 +179,7 @@ class MainActivity : AppCompatActivity() {
                 override fun OnThrottlingTriggered(active: Boolean) {
                     Log.w("ButlerKernel", "DRAS Throttling Triggered: $active")
                     runOnUiThread {
-                        val skillSdk = Python.getInstance().getModule("butler.core.skill_sdk")
+                        val skillSdk = Python.module("butler.core.skill_sdk")
                         skillSdk.callAttr("trigger_global_throttling", active)
 
                         // Push throttling state to UI
@@ -319,7 +319,7 @@ class MainActivity : AppCompatActivity() {
         fun callSkill(skillId: String, action: String, paramsJson: String) {
             skillExecutor.execute {
                 try {
-                    val resultJson = butlerModule?.callAttr("call_plugin", skillId, action, paramsJson)?.toString()
+                    val resultJson = butlerModule?.callAttr("call_plugin", skillId, action, paramsJson)?.toStr()
                     if (resultJson != null) {
                         val result = JSONObject(resultJson)
                         if (result.optString("status") == "error") {

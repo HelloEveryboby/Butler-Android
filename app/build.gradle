@@ -1,6 +1,5 @@
 apply plugin: 'com.android.application'
 apply plugin: 'kotlin-android'
-apply plugin: 'com.chaquo.python'
 
 android {
     namespace 'com.butler.android'
@@ -16,15 +15,6 @@ android {
         ndk {
             abiFilters "arm64-v8a"
         }
-
-        // Chaquopy minimal configuration with core packages only
-        python {
-            version "3.10"
-            pip {
-                install "requests==2.31.0"
-                install "pyyaml==6.0.1"
-            }
-        }
     }
 
     compileOptions {
@@ -38,12 +28,11 @@ android {
 }
 
 dependencies {
+    implementation project(':pybridge-runtime')
     implementation "androidx.core:core-ktx:1.12.0"
     implementation "androidx.appcompat:appcompat:1.6.1"
     implementation "androidx.webkit:webkit:1.9.0"
     implementation "com.google.mlkit:text-recognition:16.0.0"
     implementation "androidx.work:work-runtime-ktx:2.9.0"
-
-    // Core Butler Go-Mobile library
     implementation fileTree(dir: 'libs', include: ['*.jar', '*.aar'])
 }
