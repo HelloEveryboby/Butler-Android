@@ -1,0 +1,47 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.egg-info/
+dist/
+build/
+.eggs/
+*.egg
+venv/
+.venv/
+env/
+
+# Gradle / Android
+.gradle/
+build/
+local.properties
+*.iml
+.idea/
+*.apk
+*.aab
+*.ap_
+*.dex
+
+# C/C++ Build
+*.o
+*.so
+*.a
+*.dylib
+
+# IDE
+.vscode/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Skill market storage
+skill_storage/
+*.bsk
+
+# Test outputs
+test_results/
+.pytest_cache/
