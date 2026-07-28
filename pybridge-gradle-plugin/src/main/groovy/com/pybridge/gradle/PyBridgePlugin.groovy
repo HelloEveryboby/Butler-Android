@@ -56,7 +56,9 @@ class PyBridgePlugin implements Plugin<Project> {
 
         // ── 1. 添加运行时依赖 ──────────────────────────────────────
         // 本地项目依赖（开发时）或远程 Maven 依赖（发布后）
+        // 支持多种模块命名：:runtime (Bridge 仓库) 或 :pybridge-runtime (Butler-Android)
         def runtimeProject = project.rootProject.findProject(":runtime")
+            ?: project.rootProject.findProject(":pybridge-runtime")
         if (runtimeProject) {
             project.dependencies.add("implementation", runtimeProject)
         } else {

@@ -1,5 +1,8 @@
-apply plugin: 'com.android.application'
-apply plugin: 'kotlin-android'
+plugins {
+    id 'com.android.application'
+    id 'kotlin-android'
+    id 'com.pybridge.python'
+}
 
 android {
     namespace 'com.butler.android'
@@ -27,8 +30,16 @@ android {
     }
 }
 
+python {
+    version "3.12"
+    buildPython "python3"
+    optimizeLevel 1
+    abiFilters "arm64-v8a"
+    srcDirs = ["src/main/python"]
+}
+
 dependencies {
-    implementation project(':pybridge-runtime')
+    // pybridge-runtime 由 com.pybridge.python 插件自动添加
     implementation "androidx.core:core-ktx:1.12.0"
     implementation "androidx.appcompat:appcompat:1.6.1"
     implementation "androidx.webkit:webkit:1.9.0"

@@ -1,4 +1,5 @@
 pluginManagement {
+    includeBuild("pybridge-gradle-plugin")
     repositories {
         google()
         mavenCentral()
