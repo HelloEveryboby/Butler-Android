@@ -4,4 +4,48 @@
     <string name="title_activity_main">Butler</string>
     <string name="package_name">com.butler.app</string>
     <string name="custom_url_scheme">com.butler.app</string>
+
+    <!-- Tabs -->
+    <string name="tab_home">首页</string>
+    <string name="tab_chat">对话</string>
+    <string name="tab_tools">工具</string>
+    <string name="tab_settings">设置</string>
+
+    <!-- Home -->
+    <string name="home_title">Butler AI</string>
+    <string name="home_today">今日概览</string>
+    <string name="home_quick">快捷入口</string>
+    <string name="home_system_status">系统状态</string>
+    <string name="home_recent">最近对话</string>
+    <string name="home_welcome">系统已就绪，随时为您服务</string>
+
+    <!-- Chat -->
+    <string name="chat_hint">给 Butler 发消息</string>
+    <string name="chat_send">发送</string>
+    <string name="chat_thinking">思考中…</string>
+    <string name="chat_error_cloud">云端 LLM 调用失败，请在「设置 → 云端 API」检查 API Key 与 Base URL。</string>
+
+    <!-- Settings -->
+    <string name="settings_deployment_mode">云端 API</string>
+    <string name="settings_model_config">模型配置</string>
+    <string name="settings_appearance">外观</string>
+    <string name="settings_system">系统</string>
+    <string name="settings_dark_mode">深色模式</string>
+    <string name="settings_websocket">WebSocket</string>
+    <string name="settings_connected">已连接</string>
+    <string name="settings_not_enabled">未启用</string>
+
+    <!-- Runtime config -->
+    <string name="rt_title">云端 API</string>
+    <string name="rt_cloud_llm">云端 LLM 配置</string>
+    <string name="rt_provider">提供商</string>
+    <string name="rt_model">模型名</string>
+    <string name="rt_baseurl">API Base URL</string>
+    <string name="rt_apikey">API Key</string>
+    <string name="rt_save">保存配置</string>
+    <string name="rt_ok">确定</string>
+
+    <!-- Tools -->
+    <string name="tools_title">工具中心</string>
+    <string name="tools_count_format">%d 个可用模块</string>
 </resources>

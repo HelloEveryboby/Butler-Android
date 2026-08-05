@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <!--
+      AppTheme — Material 3 (Material You) 基础主题
+      Android 12+ 时 ButlerApplication 的 DynamicColors 会覆盖这些色值，
+      低版本时使用 colors.xml 中的静态 MD3 色板作为后备。
+    -->
+    <style name="AppTheme" parent="Theme.Material3.DayNight.NoActionBar">
+        <!-- Primary -->
+        <item name="colorPrimary">@color/md_primary</item>
+        <item name="colorOnPrimary">@color/md_onPrimary</item>
+        <item name="colorPrimaryContainer">@color/md_primaryContainer</item>
+        <item name="colorOnPrimaryContainer">@color/md_onPrimaryContainer</item>
+
+        <!-- Secondary -->
+        <item name="colorSecondary">@color/md_secondary</item>
+        <item name="colorOnSecondary">@color/md_onSecondary</item>
+        <item name="colorSecondaryContainer">@color/md_secondaryContainer</item>
+        <item name="colorOnSecondaryContainer">@color/md_onSecondaryContainer</item>
+
+        <!-- Tertiary -->
+        <item name="colorTertiary">@color/md_tertiary</item>
+        <item name="colorOnTertiary">@color/md_onTertiary</item>
+        <item name="colorTertiaryContainer">@color/md_tertiaryContainer</item>
+        <item name="colorOnTertiaryContainer">@color/md_onTertiaryContainer</item>
+
+        <!-- Error -->
+        <item name="colorError">@color/md_error</item>
+        <item name="colorOnError">@color/md_onError</item>
+        <item name="colorErrorContainer">@color/md_errorContainer</item>
+        <item name="colorOnErrorContainer">@color/md_onErrorContainer</item>
+
+        <!-- Background / Surface -->
+        <item name="android:colorBackground">@color/md_background</item>
+        <item name="colorOnBackground">@color/md_onBackground</item>
+        <item name="colorSurface">@color/md_surface</item>
+        <item name="colorOnSurface">@color/md_onSurface</item>
+        <item name="colorSurfaceVariant">@color/md_surfaceVariant</item>
+        <item name="colorOnSurfaceVariant">@color/md_onSurfaceVariant</item>
+        <item name="colorSurfaceContainer">@color/md_surfaceContainer</item>
+        <item name="colorSurfaceContainerHigh">@color/md_surfaceContainerHigh</item>
+        <item name="colorSurfaceContainerHighest">@color/md_surfaceContainerHighest</item>
+
+        <!-- Outline -->
+        <item name="colorOutline">@color/md_outline</item>
+        <item name="colorOutlineVariant">@color/md_outlineVariant</item>
+
+        <!-- Inverse -->
+        <item name="colorInverseSurface">@color/md_inverseSurface</item>
+        <item name="colorInverseOnSurface">@color/md_inverseOnSurface</item>
+        <item name="colorInversePrimary">@color/md_inversePrimary</item>
+
+        <!-- 状态栏/导航栏：透明 + 浅色前景，配合 fitsSystemWindows 走 edge-to-edge -->
+        <item name="android:statusBarColor">@android:color/transparent</item>
+        <item name="android:navigationBarColor">@android:color/transparent</item>
+        <item name="android:windowLightStatusBar">true</item>
+        <item name="android:windowLightNavigationBar">true</item>
+        <!-- 刘海屏短边模式下让内容延伸到刘海区域，由 fitsSystemWindows 收缩安全区 -->
+        <item name="android:windowLayoutInDisplayCutoutMode">shortEdges</item>
+
+        <!-- 兼容旧引用 -->
+        <item name="colorPrimaryDark">@color/md_primary</item>
+        <item name="colorAccent">@color/md_primary</item>
+    </style>
+
+    <style name="AppTheme.NoActionBar" parent="AppTheme">
+        <item name="windowActionBar">false</item>
+        <item name="windowNoTitle">true</item>
+    </style>
+
+    <!-- Splash（保留 SplashScreen API 兼容） -->
+    <style name="AppTheme.NoActionBarLaunch" parent="Theme.SplashScreen">
+        <item name="android:background">@drawable/splash</item>
+    </style>
+
+</resources>

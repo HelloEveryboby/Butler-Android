@@ -1,22 +1,57 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-    <!-- Base application theme. -->
-    <style name="AppTheme" parent="Theme.AppCompat.Light.DarkActionBar">
-        <!-- Customize your theme here. -->
-        <item name="colorPrimary">@color/colorPrimary</item>
-        <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
-        <item name="colorAccent">@color/colorAccent</item>
+    <!--
+      主题定义已移到 themes.xml（MD3 语义色映射 + 动态取色）。
+      本文件只保留 MD3 Type Scale 字体层级与可复用组件样式。
+    -->
+
+    <!-- MD3 Type Scale — 标题层级 -->
+    <style name="TextAppearance.Butler.DisplayLarge" parent="TextAppearance.Material3.DisplayLarge">
+        <item name="android:textSize">36sp</item>
+        <item name="android:textStyle">bold</item>
+        <item name="android:letterSpacing">-0.02</item>
+    </style>
+    <style name="TextAppearance.Butler.DisplayMedium" parent="TextAppearance.Material3.DisplayMedium">
+        <item name="android:textSize">32sp</item>
+        <item name="android:textStyle">bold</item>
+        <item name="android:letterSpacing">-0.03</item>
+    </style>
+    <style name="TextAppearance.Butler.HeadlineLarge" parent="TextAppearance.Material3.HeadlineLarge">
+        <item name="android:textSize">28sp</item>
+        <item name="android:textStyle">bold</item>
+        <item name="android:letterSpacing">-0.02</item>
+    </style>
+    <style name="TextAppearance.Butler.TitleLarge" parent="TextAppearance.Material3.TitleLarge">
+        <item name="android:textSize">20sp</item>
+        <item name="android:textStyle">bold</item>
+    </style>
+    <style name="TextAppearance.Butler.BodyMedium" parent="TextAppearance.Material3.BodyMedium">
+        <item name="android:textSize">14sp</item>
+    </style>
+    <style name="TextAppearance.Butler.LabelSmall" parent="TextAppearance.Material3.LabelSmall">
+        <item name="android:textSize">11sp</item>
+        <item name="android:letterSpacing">0.05</item>
     </style>
 
-    <style name="AppTheme.NoActionBar" parent="Theme.AppCompat.DayNight.NoActionBar">
-        <item name="windowActionBar">false</item>
-        <item name="windowNoTitle">true</item>
-        <item name="android:background">@null</item>
+    <!-- 设置分组小标题（沿用 LabelMedium 语义） -->
+    <style name="Butler.SectionTitle">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:textAppearance">?attr/textAppearanceLabelMedium</item>
+        <item name="android:textColor">?attr/colorPrimary</item>
+        <item name="android:paddingStart">4dp</item>
+        <item name="android:paddingEnd">4dp</item>
     </style>
 
-
-    <style name="AppTheme.NoActionBarLaunch" parent="Theme.SplashScreen">
-        <item name="android:background">@drawable/splash</item>
+    <!-- 卡片行 — MD3 FilledCard 风格 -->
+    <style name="Butler.CardRow">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:orientation">horizontal</item>
+        <item name="android:gravity">center_vertical</item>
+        <item name="android:padding">16dp</item>
+        <item name="android:background">?attr/colorSurfaceContainer</item>
     </style>
+
 </resources>

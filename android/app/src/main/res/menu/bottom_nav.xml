@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  MD3 NavigationBarView 标准 menu，使用 Material 矢量图标
+  (替代旧版 @android:drawable 系统图标，保证视觉一致性)
+-->
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <item
+        android:id="@+id/nav_home"
+        android:title="@string/tab_home"
+        android:icon="@drawable/ic_nav_home" />
+
+    <item
+        android:id="@+id/nav_chat"
+        android:title="@string/tab_chat"
+        android:icon="@drawable/ic_nav_chat" />
+
+    <item
+        android:id="@+id/nav_tools"
+        android:title="@string/tab_tools"
+        android:icon="@drawable/ic_nav_tools" />
+
+    <item
+        android:id="@+id/nav_settings"
+        android:title="@string/tab_settings"
+        android:icon="@drawable/ic_nav_settings" />
+</menu>
