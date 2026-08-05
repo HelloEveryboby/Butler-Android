@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Butler MD3 color tokens (深色基准) — 在深色模式下被 values-night 覆盖 -->
+<resources>
+    <color name="md_primary">#9ECAFF</color>
+    <color name="md_onPrimary">#003258</color>
+    <color name="md_primaryContainer">#00497D</color>
+    <color name="md_onPrimaryContainer">#D1E4FF</color>
+
+    <color name="md_secondary">#BBC7DB</color>
+    <color name="md_onSecondary">#253140</color>
+    <color name="md_secondaryContainer">#3B4858</color>
+    <color name="md_onSecondaryContainer">#D7E3F7</color>
+
+    <color name="md_tertiary">#D7BDE4</color>
+    <color name="md_onTertiary">#3A2947</color>
+    <color name="md_tertiaryContainer">#524060</color>
+    <color name="md_onTertiaryContainer">#F2D9FF</color>
+
+    <color name="md_error">#FFB4AB</color>
+    <color name="md_onError">#690005</color>
+    <color name="md_errorContainer">#93000A</color>
+    <color name="md_onErrorContainer">#FFDAD6</color>
+
+    <color name="md_background">#1A1C1E</color>
+    <color name="md_onBackground">#E2E3E9</color>
+    <color name="md_surface">#1A1C1E</color>
+    <color name="md_onSurface">#E2E3E9</color>
+    <color name="md_surfaceVariant">#43474E</color>
+    <color name="md_onSurfaceVariant">#C3C7CF</color>
+    <color name="md_surfaceContainer">#26292C</color>
+    <color name="md_surfaceContainerHigh">#36393C</color>
+    <color name="md_surfaceContainerHighest">#46494C</color>
+
+    <color name="md_outline">#8D9199</color>
+    <color name="md_outlineVariant">#43474E</color>
+
+    <color name="md_inverseSurface">#E2E3E9</color>
+    <color name="md_inverseOnSurface">#2F3033</color>
+    <color name="md_inversePrimary">#0061A6</color>
+
+    <!-- 深色模式气泡 -->
+    <color name="bubble_user">#9ECAFF</color>
+    <color name="bubble_bot">#36393C</color>
+    <color name="bg_card_light">#26292C</color>
+
+    <!-- 兼容旧引用 (深色覆盖) -->
+    <color name="bg_light">#1A1C1E</color>
+    <color name="text_primary_light">#E2E3E9</color>
+    <color name="text_secondary_light">#C3C7CF</color>
+    <color name="text_tertiary_light">#8D9199</color>
+    <color name="separator_light">#14FFFFFF</color>
+    <color name="ic_launcher_background">#000000</color>
+</resources>

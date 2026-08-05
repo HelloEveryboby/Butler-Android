@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Butler MD3 color tokens (浅色基准)
+  基于 iOS Blue #007AFF 扩展出 Material 3 完整色板，
+  Android 12+ 时被 DynamicColors 覆盖，低版本作为静态后备。
+-->
+<resources>
+    <!-- Primary — iOS Blue 家族 -->
+    <color name="md_primary">#0061A6</color>
+    <color name="md_onPrimary">#FFFFFF</color>
+    <color name="md_primaryContainer">#D1E4FF</color>
+    <color name="md_onPrimaryContainer">#001D36</color>
+
+    <!-- Secondary — 蓝灰 -->
+    <color name="md_secondary">#535F70</color>
+    <color name="md_onSecondary">#FFFFFF</color>
+    <color name="md_secondaryContainer">#D7E3F7</color>
+    <color name="md_onSecondaryContainer">#101C2B</color>
+
+    <!-- Tertiary — 紫罗兰 (替代旧 butler_purple) -->
+    <color name="md_tertiary">#6B5778</color>
+    <color name="md_onTertiary">#FFFFFF</color>
+    <color name="md_tertiaryContainer">#F2D9FF</color>
+    <color name="md_onTertiaryContainer">#251431</color>
+
+    <!-- Error -->
+    <color name="md_error">#BA1A1A</color>
+    <color name="md_onError">#FFFFFF</color>
+    <color name="md_errorContainer">#FFDAD6</color>
+    <color name="md_onErrorContainer">#410002</color>
+
+    <!-- Background / Surface -->
+    <color name="md_background">#FDFCFF</color>
+    <color name="md_onBackground">#1A1C1E</color>
+    <color name="md_surface">#FDFCFF</color>
+    <color name="md_onSurface">#1A1C1E</color>
+    <color name="md_surfaceVariant">#DFE2EB</color>
+    <color name="md_onSurfaceVariant">#43474E</color>
+    <color name="md_surfaceContainer">#EEF0F4</color>
+    <color name="md_surfaceContainerHigh">#E8EAEF</color>
+    <color name="md_surfaceContainerHighest">#E2E3E9</color>
+
+    <!-- Outline -->
+    <color name="md_outline">#73777F</color>
+    <color name="md_outlineVariant">#C3C7CF</color>
+
+    <!-- Inverse -->
+    <color name="md_inverseSurface">#2F3033</color>
+    <color name="md_inverseOnSurface">#F1F0F4</color>
+    <color name="md_inversePrimary">#9ECAFF</color>
+
+    <!-- 旧调色板，保留以兼容硬编码引用 -->
+    <color name="colorPrimary">#007AFF</color>
+    <color name="colorPrimaryDark">#0051D5</color>
+    <color name="colorAccent">#007AFF</color>
+    <color name="butler_blue">#007AFF</color>
+    <color name="butler_green">#34C759</color>
+    <color name="butler_orange">#FF9F0A</color>
+    <color name="butler_red">#FF3B30</color>
+    <color name="butler_purple">#AF52DE</color>
+    <color name="butler_teal">#5AC8FA</color>
+
+    <!-- 对话气泡 (浅色) -->
+    <color name="bubble_user">#0061A6</color>
+    <color name="bubble_bot">#E2E3E9</color>
+    <color name="bg_card_light">#FFFFFF</color>
+
+    <!-- 兼容旧引用 -->
+    <color name="bg_light">#FDFCFF</color>
+    <color name="text_primary_light">#1A1C1E</color>
+    <color name="text_secondary_light">#43474E</color>
+    <color name="text_tertiary_light">#73777F</color>
+    <color name="separator_light">#1F1A1C1E</color>
+    <color name="ic_launcher_background">#FFFFFF</color>
+</resources>
